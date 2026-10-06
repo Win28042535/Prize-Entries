@@ -1,0 +1,11 @@
+.claude/
+.git/
+.DS_Store
+__MACOSX/
+Thumbs.db
+# local source folders, not part of the site (prize-assets/ holds the resized copies in use)
+/assets/
+/LOGO/
+/Bg/
+.env*
+.vercel

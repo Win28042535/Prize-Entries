@@ -7,3 +7,6 @@ Thumbs.db
 /assets/
 /LOGO/
 /Bg/
+
+.vercel
+.env*
