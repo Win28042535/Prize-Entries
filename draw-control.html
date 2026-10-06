@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucky Draw Control</title>
+<style>
+  @font-face{font-family:"FC Minimal";src:url("prize-assets/fonts/fc-minimal-100-500.ttf") format("truetype");font-weight:100 500;font-display:swap}
+  @font-face{font-family:"FC Minimal";src:url("prize-assets/fonts/fc-minimal-600-900.ttf") format("truetype");font-weight:600 900;font-display:swap}
+  @font-face{font-family:"Baskervville";src:url("prize-assets/fonts/baskervville-400-700.ttf") format("truetype");font-weight:400 700;font-display:swap}
+  :root{
+    --bg:#FBFBFB; --surface:#fff; --ink:#111318; --ink-2:#687078; --ink-3:#687078;   /* DNA secondary text */
+    --line:rgba(17,19,24,.12); --line-2:rgba(17,19,24,.06);
+    --blue:#6598FF; --blue-ink:#1863DC; --blue-tint:rgba(234,242,255,.72);
+    --banner:linear-gradient(180deg,#0B0D14 0%,#1B2240 100%);
+    --rim:linear-gradient(90deg,#00d4fe,#1f87e6,#113cf3,#722df4,#e63bd8,#f79319);
+    --metal:linear-gradient(180deg,#ffffff 0%,#f3f4f8 55%,#e4e7ee 100%);
+    --ok:#2F9E6B; --danger:#D9435A;
+    --serif:"Baskervville",serif; --sans:"FC Minimal",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
+  button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 60px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0;border-bottom:1px solid var(--line-2);margin-bottom:24px;flex-wrap:wrap}
+  .back{font-size:14px;color:var(--ink-2);text-decoration:none}
+  h1{font-family:var(--serif);font-weight:400;font-size:40px;text-transform:uppercase;line-height:1;margin-top:6px}
+  h1 small{font-family:var(--sans);font-size:15px;color:var(--ink-3);text-transform:none;margin-left:10px}
+  .hd-r{display:flex;align-items:center;gap:12px}
+  .conn{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+  .conn i{width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+  .conn.on{color:var(--ok)} .conn.on i{background:var(--ok)}
+  .pill{height:46px;padding:0 22px;border-radius:999px;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;border:1px solid var(--line);background:var(--surface);transition:transform .15s}
+  .pill:active{transform:scale(.98)}
+  .pill:disabled{opacity:.4;cursor:not-allowed}
+  /* liquid-metal slots (filled by prize-assets/lmb/mount.js) */
+  [data-lmb]{display:flex;justify-content:center;align-items:center;min-height:56px}
+  [data-lmb].is-off{opacity:.4;pointer-events:none;filter:grayscale(.6)}
+  @media (max-width:575px){[data-lmb]{min-height:49px}}
+  .lmb button:focus-visible{outline:2px solid #2b6cff;outline-offset:3px}
+  .pill.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .pill.warn{color:var(--danger);border-color:rgba(217,67,90,.4)}
+  .pill svg{width:16px;height:16px}
+
+  .grid{display:grid;gap:20px}
+  @media (min-width:980px){.grid{grid-template-columns:1.15fr .85fr;align-items:start}}
+  @media (max-width:979px){.grid > .stack:last-child{order:-1}}
+  .card{background:var(--surface);border:1px solid var(--line)}
+  .card > .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--banner);color:#fff}
+  .card > .hd span:first-child{font-family:var(--serif);letter-spacing:.1em;text-transform:uppercase;font-size:13px}
+  .card > .hd span:last-child{font-size:13px;opacity:.8}
+  .bd{padding:16px}
+
+  .preview{aspect-ratio:16/9;background:#0B0D14;position:relative}
+  .preview iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
+  .scenes{display:flex;gap:8px;flex-wrap:wrap;padding:14px 16px;border-top:1px solid var(--line-2)}
+  .scenes .pill{height:40px;padding:0 16px;font-size:14px}
+  .scenes .pill[aria-pressed="true"]{background:var(--blue-tint);box-shadow:inset 0 0 0 1px var(--blue);border-color:transparent;color:var(--blue-ink)}
+
+  label.l{display:block;font-size:13px;color:var(--ink-3);margin:2px 0 8px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-bottom:16px}
+  .opt{padding:12px;text-align:left;font-size:14px;border-left:1px solid var(--line);border-top:1px solid var(--line);margin:-1px 0 0 -1px}
+  .opt small{display:block;color:var(--ink-3);font-size:12px}
+  .opt[aria-pressed="true"]{background:var(--blue-tint);box-shadow:inset 0 0 0 1px var(--blue);color:var(--blue-ink)}
+  .opt:disabled{opacity:.4;cursor:not-allowed}
+  .elig{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line-2);padding:12px 0 16px;font-size:14px;color:var(--ink-2)}
+  .elig b{font-weight:500;font-size:30px;color:var(--ink)}
+
+  .result{display:grid;grid-template-columns:72px 1fr;gap:14px;align-items:center;padding:16px;border-top:1px solid var(--line-2);background:var(--blue-tint)}
+  .result img{width:72px;aspect-ratio:1418/1985;border-radius:6px;object-fit:cover}
+  .result .k{font-size:12px;color:var(--blue-ink)}
+  .result b{display:block;font-size:22px;font-weight:500;line-height:1.2}
+  .result small{display:block;font-size:13px;color:var(--ink-2)}
+  .result .acts{grid-column:1/-1;display:flex;gap:8px}
+  .result .acts .pill{flex:1}
+
+  .log{list-style:none}
+  .log li{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;padding:12px 16px;border-top:1px solid var(--line-2);font-size:14px}
+  .log li:first-child{border-top:0}
+  .log b{font-weight:500}
+  .log small{grid-column:1;font-size:12px;color:var(--ink-3)}
+  .log .tag{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+  .log .tag.ok{background:rgba(47,158,107,.1);color:var(--ok);border-color:transparent}
+  .log .tag.skip{background:rgba(217,67,90,.08);color:var(--danger);border-color:transparent}
+  .log button.tag{cursor:pointer}
+  .log button.tag:hover{border-color:var(--blue);color:var(--blue-ink)}
+  .empty{padding:20px 16px;color:var(--ink-3);font-size:14px;text-align:center}
+  .tip{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6}
+  .stack{display:grid;gap:20px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:14px;padding:10px 18px;border-radius:999px;opacity:0;transition:all .3s;pointer-events:none}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="prize-entries-mockup.html">← Prize Entries</a>
+      <h1>Lucky Draw <small>Control Panel</small></h1>
+    </div>
+    <div class="hd-r">
+      <span class="conn" id="conn"><i></i><span>จอแสดงผล: ยังไม่เปิด</span></span>
+      <button class="pill dark" id="openShow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12"/><path d="M8 20h8M12 16v4"/></svg>
+        Show Screen ↗
+      </button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="stack">
+      <div class="card">
+        <div class="hd"><span>On Screen</span><span id="sceneLbl">Idle</span></div>
+        <div class="preview"><iframe src="show-screen.html?preview" title="ตัวอย่างจอแสดงผล" tabindex="-1"></iframe></div>
+        <div class="scenes" id="scenes">
+          <button class="pill" data-scene="idle">หน้ารอ</button>
+          <button class="pill" data-scene="prize">ประกาศรางวัล</button>
+          <button class="pill" data-scene="board">ตารางผู้ชนะ</button>
+          <button class="pill" data-scene="blank">ซ่อนจอ</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd"><span>Winners</span><span id="winCount">0</span></div>
+        <ul class="log" id="winLog"></ul>
+      </div>
+      <div class="card">
+        <div class="hd"><span>Skipped</span><span id="skipCount">0</span></div>
+        <ul class="log" id="skipLog"></ul>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="hd"><span>Draw Settings</span><span>ตั้งค่า & เริ่มสุ่ม</span></div>
+        <div class="bd">
+          <label class="l">รางวัล</label>
+          <div class="opts" id="prizeOpts"></div>
+          <label class="l">ผู้มีสิทธิ์</label>
+          <div class="opts" id="poolOpts"></div>
+          <label class="l">นับถอยหลังบนจอ</label>
+          <div class="opts" id="cdOpts" style="grid-template-columns:repeat(3,1fr)"></div>
+          <div class="elig"><span>ผู้มีสิทธิ์ลุ้น (ไม่รวมผู้ได้รางวัลและผู้ถูกข้าม)</span><b id="elig">0</b></div>
+          <div id="go" data-lmb="เริ่มสุ่ม" data-action="go" data-fill></div>
+          <p class="tip">ปุ่ม "เริ่มสุ่ม" จะสุ่มผลที่นี่ก่อน แล้วส่งไปแสดงบนจอ จอแสดงผลไม่ได้สุ่มเอง<br>เปิด Show Screen แล้วลากหน้าต่างไปที่จอ LED กด <b>F</b> เพื่อเต็มจอ, <b>G</b> เพื่อดูเส้น safe area</p>
+        </div>
+        <div id="result"></div>
+      </div>
+      <button class="pill" id="reset" style="justify-self:start">รีเซ็ตข้อมูลตัวอย่าง</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="prize-assets/prize-data.js"></script>
+<script>
+const D = window.PRIZE_DATA;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const person = id => D.PEOPLE.find(p => p.id === id);
+const now = () => { const d = new Date(); return `${d.getDate()}/${d.getMonth()+1}/${(d.getFullYear()+543)%100} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
+const SCENE_LBL = {idle:"Idle", prize:"Next Prize", drawing:"Drawing", reveal:"Winner", board:"Winners", blank:"Hidden"};
+
+// ---- state (kept in localStorage so a reload doesn't lose the demo) ----
+const KEY = "bt2026-prize-control";
+const fresh = () => ({ prize: 0, ticket: -1, countdown: 5, scene: "idle", seq: 0, pending: null, winners: [], skipped: [], last: null });
+const COUNTDOWNS = [3, 5, 10];
+let S = fresh();
+try { const saved = JSON.parse(localStorage.getItem(KEY)); if(saved) S = Object.assign(fresh(), saved); } catch(e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+
+const prizeLeft = i => D.PRIZES[i].qty - S.winners.filter(w => w.prize === i).length - (S.pending?.prize === i ? 1 : 0);
+const poolLabel = () => S.ticket < 0 ? "ผู้ถือบัตรทุกประเภท" : `ผู้ถือ${D.TICKETS[S.ticket]}`;
+function pool(){
+  const out = new Set([...S.winners.map(w => w.pid), ...S.skipped.filter(s => !s.restored).map(s => s.pid)]);
+  if(S.pending) out.add(S.pending.pid);
+  return D.PEOPLE.filter(p => !out.has(p.id) && (S.ticket < 0 || p.t === S.ticket));
+}
+
+// ---- channel ----
+const ch = new BroadcastChannel(D.CHANNEL);
+let screens = 0;
+ch.onmessage = e => {
+  const m = e.data || {};
+  if(m.t === "hello"){
+    if(!m.preview){ screens++; renderConn(); }
+    if(S.last) ch.postMessage({ t: "state", state: S.last, replay: true });
+  }
+  if(m.t === "bye" && !m.preview){ screens = Math.max(0, screens - 1); renderConn(); }
+};
+// every open Show Screen (and the preview iframe) gets the full state, so screens never need their own logic
+function broadcast(scene, extra = {}){
+  const p = S.pending ? person(S.pending.pid) : null;
+  const pi = S.pending ? S.pending.prize : S.prize;
+  const pl = pool();
+  S.scene = scene;
+  // "ที่ n" = order of this winner within its prize (confirmed winners first, then the one on screen)
+  const seen = {};
+  const winners = S.winners.map(w => {
+    const x = person(w.pid); seen[w.prize] = (seen[w.prize] || 0) + 1;
+    return { id: x.id, n: x.n, c: x.c, prize: D.PRIZES[w.prize].name, no: seen[w.prize] };
+  });
+  S.last = {
+    scene, seq: ++S.seq, redraw: !!extra.redraw, countdown: S.countdown,
+    prize: { name: D.PRIZES[pi].name, qty: D.PRIZES[pi].qty, left: Math.max(0, prizeLeft(pi)) },
+    pool: { label: poolLabel(), count: pl.length + (p ? 1 : 0) },
+    winner: p ? { id: p.id, n: p.n, t: p.t, c: p.c, no: (seen[pi] || 0) + 1 } : null,
+    winners,
+  };
+  save();
+  ch.postMessage({ t: "state", state: S.last });
+  render();
+}
+
+function draw(redraw){
+  const pl = pool();
+  if(!pl.length){ toast("ไม่มีผู้มีสิทธิ์เหลือในกลุ่มนี้"); return false; }
+  if(prizeLeft(S.prize) <= 0){ toast("รางวัลนี้แจกครบแล้ว"); return false; }
+  const pick = pl[Math.floor(Math.random() * pl.length)];
+  S.pending = { pid: pick.id, prize: S.prize, at: now() };
+  broadcast("drawing", { redraw });
+  return true;
+}
+
+// ---- render ----
+function renderConn(){
+  $("#conn").classList.toggle("on", screens > 0);
+  $("#conn span").textContent = screens > 0 ? `จอแสดงผล: เชื่อมต่อแล้ว (${screens})` : "จอแสดงผล: ยังไม่เปิด";
+}
+function render(){
+  $("#sceneLbl").textContent = SCENE_LBL[S.scene] || S.scene;
+  document.querySelectorAll("#scenes [data-scene]").forEach(b => b.setAttribute("aria-pressed", b.dataset.scene === S.scene));
+  const locked = !!S.pending;
+
+  $("#prizeOpts").innerHTML = D.PRIZES.map((p,i) => `<button class="opt" data-p="${i}" aria-pressed="${S.prize===i}" ${prizeLeft(i)<=0 || locked ? "disabled" : ""}>${esc(p.name)}<small>เหลือ ${Math.max(0,prizeLeft(i))} / ${p.qty}</small></button>`).join("");
+  $("#poolOpts").innerHTML = [{l:"ทุกประเภทบัตร",i:-1}, ...D.TICKETS.map((l,i) => ({l,i}))].map(o => `<button class="opt" data-t="${o.i}" aria-pressed="${S.ticket===o.i}" ${locked ? "disabled" : ""}>${esc(o.l)}</button>`).join("");
+  $("#cdOpts").innerHTML = COUNTDOWNS.map(s => `<button class="opt" data-cd="${s}" aria-pressed="${S.countdown===s}" ${locked ? "disabled" : ""}>${s} วินาที</button>`).join("");
+  $("#elig").textContent = pool().length;
+  $("#go").classList.toggle("is-off", locked || !pool().length || prizeLeft(S.prize) <= 0);
+
+  if(S.pending){
+    const p = person(S.pending.pid);
+    $("#result").innerHTML = `<div class="result">
+      <img src="prize-assets/cards/${p.c || "back"}.webp" alt="">
+      <div><span class="k">ผลการสุ่ม · ${esc(D.PRIZES[S.pending.prize].name)} · กำลังแสดงบนจอ</span><b>${esc(p.n)}</b>
+        <small>${esc(D.TICKETS[p.t])}${p.c ? " · " + D.CHARS[p.c] : " · ยังไม่มี Investor DNA"}</small></div>
+      <div class="acts"><button class="pill warn" id="redraw">ผู้ชนะไม่อยู่ → สุ่มใหม่</button><button class="pill dark" id="confirm">ยืนยันผู้ชนะ (มารับรางวัล)</button></div></div>`;
+  } else $("#result").innerHTML = "";
+
+  $("#winCount").textContent = S.winners.length;
+  $("#winLog").innerHTML = S.winners.length ? S.winners.slice().reverse().map(w => { const p = person(w.pid);
+    return `<li><b>${esc(p.n)}</b><span class="tag ok">${esc(D.PRIZES[w.prize].name)}</span><small>${esc(D.TICKETS[p.t])} · ${w.at}</small></li>`; }).join("")
+    : `<li class="empty">ยังไม่มีผู้ได้รับรางวัล</li>`;
+
+  const sk = S.skipped;
+  $("#skipCount").textContent = sk.filter(s => !s.restored).length;
+  $("#skipLog").innerHTML = sk.length ? sk.map((s,i) => ({s,i})).reverse().map(({s,i}) => { const p = person(s.pid);
+    return `<li><b>${esc(p.n)}</b>${s.restored ? `<span class="tag">คืนสิทธิ์แล้ว</span>` : `<button class="tag" data-restore="${i}" title="ให้กลับมามีสิทธิ์ลุ้นอีกครั้ง">คืนสิทธิ์</button>`}
+      <small>ไม่อยู่ตอนประกาศ ${esc(D.PRIZES[s.prize].name)} · ${s.at}</small></li>`; }).join("")
+    : `<li class="empty">ยังไม่มีผู้ถูกข้าม</li>`;
+}
+
+// ---- events ----
+$("#openShow").addEventListener("click", () => {
+  // a named target opens a new tab, and reuses it if the screen is already open
+  window.open("show-screen.html", "bt2026-show");
+});
+$("#scenes").addEventListener("click", e => {
+  const b = e.target.closest("[data-scene]"); if(!b) return;
+  if(S.pending && b.dataset.scene !== "blank"){ toast("ยืนยันผู้ชนะหรือสุ่มใหม่ก่อน"); return; }
+  broadcast(b.dataset.scene);
+});
+document.addEventListener("click", e => {
+  const p = e.target.closest("[data-p]"); if(p && !p.disabled){ S.prize = +p.dataset.p; save(); render(); return; }
+  const t = e.target.closest("[data-t]"); if(t && !t.disabled){ S.ticket = +t.dataset.t; save(); render(); return; }
+  const cd = e.target.closest("[data-cd]"); if(cd && !cd.disabled){ S.countdown = +cd.dataset.cd; save(); render(); return; }
+  if(e.target.closest("#confirm")){
+    S.winners.push({ pid: S.pending.pid, prize: S.pending.prize, at: S.pending.at });
+    S.pending = null; save(); render(); toast("บันทึกผู้ได้รับรางวัลแล้ว"); return;
+  }
+  if(e.target.closest("#redraw")){
+    S.skipped.push({ pid: S.pending.pid, prize: S.pending.prize, at: now() });
+    S.pending = null;
+    if(!draw(true)){ save(); broadcast("prize"); }
+    return;
+  }
+  const r = e.target.closest("[data-restore]");
+  if(r){ S.skipped[+r.dataset.restore].restored = true; save(); render(); toast("คืนสิทธิ์ลุ้นรางวัลแล้ว"); }
+});
+document.addEventListener("lmb-click", e => {
+  if(e.target.dataset.action === "go" && !S.pending) draw(false);
+});
+$("#reset").addEventListener("click", () => {
+  if(!confirm("ล้างผลสุ่มตัวอย่างทั้งหมด?")) return;
+  S = fresh(); save(); broadcast("idle");
+});
+
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
+
+render();
+// resync any screen that is already open (e.g. after reloading this page)
+if(S.last) ch.postMessage({ t: "state", state: S.last, replay: true });
+</script>
+<script type="module" src="prize-assets/lmb/mount.js"></script>
+</body>
+</html>
