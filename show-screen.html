@@ -63,12 +63,16 @@
   .k::before,.k::after{content:"";width:72px;height:1px;background:currentColor;opacity:.6}
 
   /* idle */
-  .idle img{width:1080px;filter:drop-shadow(0 20px 40px rgba(17,19,24,.18))}
-  .idle .k{margin-top:46px}
-  .idle p{margin-top:18px;font-size:34px;color:var(--ink-2)}
+  /* the headline leads; the event logo is the supporting identity (64% of its old width) */
+  .idle img{width:691px;filter:drop-shadow(0 16px 32px rgba(17,19,24,.16))}
+  .idle .k{margin-top:30px;font-size:76px;gap:28px}
+  .idle .k::before,.idle .k::after{width:120px}
+  .idle h2{margin:4px 0 6px}
+  .idle p{margin-top:10px;font-size:34px;color:var(--ink-2)}
 
   /* prize */
-  .prize h2{font-weight:600;font-size:150px;line-height:1.05;margin:28px 0 22px;letter-spacing:-.01em}
+  .prize h2,.idle h2,.board h2{font-weight:600;font-size:150px;line-height:1.05;letter-spacing:-.01em}
+  .prize h2{margin:28px 0 22px}
   .prize .qty{font-size:34px;color:var(--ink-2)}
   .prize .qty b{font-weight:500;font-size:54px;color:var(--ink);margin:0 6px}
   .rule{margin-top:44px;display:inline-flex;align-items:stretch;border:1px solid var(--line);background:rgba(255,255,255,.72);backdrop-filter:blur(8px)}
@@ -115,12 +119,14 @@
   .who .meta{margin-top:24px;font-size:28px;color:var(--ink-3)}
 
   /* board */
-  .board h2{font-family:var(--serif);font-weight:400;font-size:96px;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 40px}
-  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:18px;max-width:1374px}
-  .tile{width:330px;display:flex;gap:16px;align-items:center;text-align:left;padding:14px;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
-  .tile img{width:70px;aspect-ratio:1418/1985;border-radius:8px;flex:none;object-fit:cover}
-  .tile b{display:block;font-size:26px;font-weight:600;line-height:1.2}
-  .tile small{display:block;font-size:20px;color:var(--blue-ink);margin-top:4px}
+  .board h2{margin:8px 0 26px}
+  /* 3 columns x up to 4 rows (12 winners); names and prizes are sized for reading from far away */
+  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 18px;max-width:1656px}
+  .tile{width:540px;display:flex;gap:18px;align-items:center;text-align:left;padding:12px;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  .tile img{width:72px;aspect-ratio:1418/1985;border-radius:8px;flex:none;object-fit:cover}
+  .tile > div{min-width:0;flex:1}
+  .tile b{display:block;font-size:40px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile small{display:block;font-size:30px;font-weight:500;color:var(--blue-ink);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .board .empty{font-size:34px;color:var(--ink-3)}
 
   #confetti{position:absolute;inset:0;z-index:6;pointer-events:none}
@@ -169,7 +175,8 @@
   <section class="scene idle" data-scene="idle">
     <img src="prize-assets/img/nwnp.png" alt="New World New Playbook · Better Trade 2026">
     <div class="k">Lucky Draw</div>
-    <p>ลุ้นรางวัลพิเศษสำหรับผู้ร่วมงาน</p>
+    <h2>ลุ้นรางวัลพิเศษ</h2>
+    <p>สำหรับผู้ร่วมงาน</p>
   </section>
 
   <section class="scene prize" data-scene="prize">
@@ -212,11 +219,9 @@
 
   <section class="scene board" data-scene="board">
     <div class="k">Better Trade 2026</div>
-    <h2>Winners</h2>
+    <h2>ผู้ชนะ</h2>
     <div id="grid"></div>
   </section>
-
-  <section class="scene blank" data-scene="blank"></section>
 
   <canvas id="confetti" width="1920" height="1080"></canvas>
   <div class="guide"></div>
@@ -324,6 +329,10 @@ function showBoard(st){
       <div><b>${esc(nm(w.n))}</b><small>${esc(w.prize)} ที่ ${w.no}</small></div></div>`).join("")
     : `<p class="empty">ยังไม่มีผู้ได้รับรางวัล</p>`;
   go("board");
+  document.querySelectorAll("#grid .tile b").forEach(b => {
+    b.style.fontSize = "";
+    if(b.scrollWidth > b.clientWidth) b.style.fontSize = Math.max(26, Math.floor(40 * b.clientWidth / b.scrollWidth)) + "px";
+  });
 }
 
 let lastSeq = -1;
@@ -343,7 +352,6 @@ function apply(st, instant){
       break;
     case "reveal": showReveal(st, instant); break;
     case "board": showBoard(st); break;
-    case "blank": go("blank"); break;
     default: go("idle");
   }
 }

@@ -16,7 +16,14 @@
   });
 
   function load(){
-    try { const s = JSON.parse(localStorage.getItem(KEY)); if(s) return Object.assign(fresh(), s); } catch(e) {}
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY));
+      if(s){
+        const state = Object.assign(fresh(), s);
+        if(state.scene === "blank") state.scene = "idle";   // the hide-screen scene no longer exists
+        return state;
+      }
+    } catch(e) {}
     return fresh();
   }
   function save(S){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }

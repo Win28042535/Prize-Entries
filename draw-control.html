@@ -120,7 +120,6 @@
           <button class="pill" data-scene="idle">หน้ารอ</button>
           <button class="pill" data-scene="prize">ประกาศรางวัล</button>
           <button class="pill" data-scene="board">ตารางผู้ชนะ</button>
-          <button class="pill" data-scene="blank">ซ่อนจอ</button>
         </div>
       </div>
 
@@ -164,7 +163,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const person = id => D.PEOPLE.find(p => p.id === id);
 const now = () => { const d = new Date(); return `${d.getDate()}/${d.getMonth()+1}/${(d.getFullYear()+543)%100} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
-const SCENE_LBL = {idle:"Idle", prize:"Next Prize", drawing:"Drawing", reveal:"Winner", board:"Winners", blank:"Hidden"};
+const SCENE_LBL = {idle:"Idle", prize:"Next Prize", drawing:"Drawing", reveal:"Winner", board:"Winners"};
 
 // ---- state: shared with Prize Entries through PrizeStore (one localStorage record) ----
 const COUNTDOWNS = [3, 5, 10];
@@ -269,7 +268,7 @@ $("#openShow").addEventListener("click", () => {
 });
 $("#scenes").addEventListener("click", e => {
   const b = e.target.closest("[data-scene]"); if(!b) return;
-  if(S.pending && b.dataset.scene !== "blank"){ toast("ยืนยันผู้ชนะหรือสุ่มใหม่ก่อน"); return; }
+  if(S.pending){ toast("ยืนยันผู้ชนะหรือสุ่มใหม่ก่อน"); return; }
   broadcast(b.dataset.scene);
 });
 document.addEventListener("click", e => {
@@ -300,7 +299,7 @@ $("#reset").addEventListener("click", () => {
 // screen's winners ticker unless a draw is on screen right now
 PrizeStore.onChange(next => {
   S = next; render();
-  if(["idle", "prize", "board", "blank"].includes(S.scene)) broadcast(S.scene);
+  if(["idle", "prize", "board"].includes(S.scene)) broadcast(S.scene);
 });
 
 function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
