@@ -15,8 +15,15 @@ const BASE = {
   paddingX: 64, rim: 3, metalShiftRed: 0.2, metalShiftBlue: 0.2,
 };
 const COMPACT = { height: 49, fontSize: 18, paddingX: 56 };
-const compactQuery = matchMedia('(max-width: 575px)');
+// compact size on narrow screens, and on short ones (a phone held sideways) so the button doesn't eat the page
+const compactQuery = matchMedia('(max-width: 575px), (max-height: 480px)');
 const live = new Map();   // slot -> { btn, w, compact }
+
+// A full-width button has a fixed pixel width. Without containment that width becomes the slot's
+// minimum size, so a grid column could never shrink again after the viewport got narrower.
+const style = document.createElement('style');
+style.textContent = '[data-lmb][data-fill]{contain:inline-size;min-width:0}';
+document.head.appendChild(style);
 
 function build(slot){
   const compact = compactQuery.matches;

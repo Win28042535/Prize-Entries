@@ -23,7 +23,7 @@
   button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
   .wrap{max-width:1180px;margin:0 auto;padding:0 20px 60px}
   header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 0;border-bottom:1px solid var(--line-2);margin-bottom:24px;flex-wrap:wrap}
-  .back{font-size:14px;color:var(--ink-2);text-decoration:none}
+  .back{font-size:14px;color:var(--ink-2);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;margin:-14px 0 -6px}
   h1{font-family:var(--serif);font-weight:400;font-size:40px;text-transform:uppercase;line-height:1;margin-top:6px}
   h1 small{font-family:var(--sans);font-size:15px;color:var(--ink-3);text-transform:none;margin-left:10px}
   .hd-r{display:flex;align-items:center;gap:12px}
@@ -36,15 +36,18 @@
   /* liquid-metal slots (filled by prize-assets/lmb/mount.js) */
   [data-lmb]{display:flex;justify-content:center;align-items:center;min-height:56px}
   [data-lmb].is-off{opacity:.4;pointer-events:none;filter:grayscale(.6)}
-  @media (max-width:575px){[data-lmb]{min-height:49px}}
+  @media (max-width:575px),(max-height:480px){[data-lmb]{min-height:49px}}
   .lmb button:focus-visible{outline:2px solid #2b6cff;outline-offset:3px}
   .pill.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
   .pill.warn{color:var(--danger);border-color:rgba(217,67,90,.4)}
   .pill svg{width:16px;height:16px}
 
   .grid{display:grid;gap:20px}
-  @media (min-width:980px){.grid{grid-template-columns:1.15fr .85fr;align-items:start}}
-  @media (max-width:979px){.grid > .stack:last-child{order:-1}}
+  @media (max-width:560px){h1 small{display:block;margin:8px 0 0}}   /* "Control Panel" used to break across two lines beside the title */
+  .grid > *{min-width:0}
+  /* same two-column breakpoint (900px) as the Prize Entries page */
+  @media (min-width:900px){.grid{grid-template-columns:1.15fr .85fr;align-items:start}}
+  @media (max-width:899px){.grid > .stack:last-child{order:-1}}
   .card{background:var(--surface);border:1px solid var(--line)}
   .card > .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--banner);color:#fff}
   .card > .hd span:first-child{font-family:var(--serif);letter-spacing:.1em;text-transform:uppercase;font-size:13px}
@@ -54,12 +57,12 @@
   .preview{aspect-ratio:16/9;background:#0B0D14;position:relative}
   .preview iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
   .scenes{display:flex;gap:8px;flex-wrap:wrap;padding:14px 16px;border-top:1px solid var(--line-2)}
-  .scenes .pill{height:40px;padding:0 16px;font-size:14px}
+  .scenes .pill{height:44px;padding:0 16px;font-size:14px}
   .scenes .pill[aria-pressed="true"]{background:var(--blue-tint);box-shadow:inset 0 0 0 1px var(--blue);border-color:transparent;color:var(--blue-ink)}
 
   label.l{display:block;font-size:13px;color:var(--ink-3);margin:2px 0 8px}
   .opts{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-bottom:16px}
-  .opt{padding:12px;text-align:left;font-size:14px;border-left:1px solid var(--line);border-top:1px solid var(--line);margin:-1px 0 0 -1px}
+  .opt{padding:12px;min-height:44px;text-align:left;font-size:14px;border-left:1px solid var(--line);border-top:1px solid var(--line);margin:-1px 0 0 -1px}
   .opt small{display:block;color:var(--ink-3);font-size:12px}
   .opt[aria-pressed="true"]{background:var(--blue-tint);box-shadow:inset 0 0 0 1px var(--blue);color:var(--blue-ink)}
   .opt:disabled{opacity:.4;cursor:not-allowed}
@@ -82,7 +85,8 @@
   .log .tag{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
   .log .tag.ok{background:rgba(47,158,107,.1);color:var(--ok);border-color:transparent}
   .log .tag.skip{background:rgba(217,67,90,.08);color:var(--danger);border-color:transparent}
-  .log button.tag{cursor:pointer}
+  .log button.tag{cursor:pointer;position:relative}
+  .log button.tag::after{content:"";position:absolute;inset:-13px -6px}   /* ~44px touch area, same look */
   .log button.tag:hover{border-color:var(--blue);color:var(--blue-ink)}
   .empty{padding:20px 16px;color:var(--ink-3);font-size:14px;text-align:center}
   .tip{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6}
@@ -153,6 +157,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="prize-assets/prize-data.js"></script>
+<script src="prize-assets/prize-store.js"></script>
 <script>
 const D = window.PRIZE_DATA;
 const $ = s => document.querySelector(s);
@@ -161,13 +166,10 @@ const person = id => D.PEOPLE.find(p => p.id === id);
 const now = () => { const d = new Date(); return `${d.getDate()}/${d.getMonth()+1}/${(d.getFullYear()+543)%100} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; };
 const SCENE_LBL = {idle:"Idle", prize:"Next Prize", drawing:"Drawing", reveal:"Winner", board:"Winners", blank:"Hidden"};
 
-// ---- state (kept in localStorage so a reload doesn't lose the demo) ----
-const KEY = "bt2026-prize-control";
-const fresh = () => ({ prize: 0, ticket: -1, countdown: 5, scene: "idle", seq: 0, pending: null, winners: [], skipped: [], last: null });
+// ---- state: shared with Prize Entries through PrizeStore (one localStorage record) ----
 const COUNTDOWNS = [3, 5, 10];
-let S = fresh();
-try { const saved = JSON.parse(localStorage.getItem(KEY)); if(saved) S = Object.assign(fresh(), saved); } catch(e) {}
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+let S = PrizeStore.load();
+const save = () => PrizeStore.save(S);
 
 const prizeLeft = i => D.PRIZES[i].qty - S.winners.filter(w => w.prize === i).length - (S.pending?.prize === i ? 1 : 0);
 const poolLabel = () => S.ticket < 0 ? "ผู้ถือบัตรทุกประเภท" : `ผู้ถือ${D.TICKETS[S.ticket]}`;
@@ -292,7 +294,13 @@ document.addEventListener("lmb-click", e => {
 });
 $("#reset").addEventListener("click", () => {
   if(!confirm("ล้างผลสุ่มตัวอย่างทั้งหมด?")) return;
-  S = fresh(); save(); broadcast("idle");
+  S = PrizeStore.fresh(); save(); broadcast("idle");
+});
+// Prize Entries (another tab) removed a winner or changed the state: take it in, and refresh the
+// screen's winners ticker unless a draw is on screen right now
+PrizeStore.onChange(next => {
+  S = next; render();
+  if(["idle", "prize", "board", "blank"].includes(S.scene)) broadcast(S.scene);
 });
 
 function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }

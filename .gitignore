@@ -3,12 +3,7 @@ __MACOSX/
 Thumbs.db
 .claude/settings.local.json
 
-# source/original folders kept locally, not part of the deliverable (prize-assets/ holds the resized copies in use)
+# original source folders kept locally, not part of the deliverable (prize-assets/ holds the resized copies in use)
 /assets/
-/Asset-element/
-/Card Character/
-/Character Card Animation/
 /LOGO/
 /Bg/
-/tab-display/
-/liquid-metal-button-kit/

@@ -54,6 +54,7 @@
   .hero > *{position:relative;z-index:1}
   .hero-gift{position:absolute;z-index:0!important;right:8px;top:74px;width:112px;height:auto;filter:drop-shadow(0 18px 24px rgba(63,111,224,.25));animation:float 5s ease-in-out infinite}
   @keyframes float{50%{transform:translateY(-10px) rotate(-3deg)}}
+  @media (max-width:360px){.hero-gift{width:84px;right:6px}}   /* narrow phones: keep clear of the title */
   @media (min-width:900px){.hero-gift{width:200px;right:40px;top:40px}}
   .eyebrow{font-family:var(--serif);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:10px}
   .eyebrow::after{content:"✦";font-size:10px;color:var(--ink)}
@@ -90,13 +91,13 @@
   .tools{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
   .chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
   .chips::-webkit-scrollbar{display:none}
-  .chip{flex:none;height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;display:flex;align-items:center;gap:8px;transition:all .2s}
+  .chip{flex:none;height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;display:flex;align-items:center;gap:8px;transition:all .2s}
   .chip b{font-weight:500;color:var(--ink-3)}
   .chip[aria-pressed="true"]{background:var(--blue-tint);box-shadow:inset 0 0 0 1px var(--blue);border-color:transparent;color:var(--blue-ink)}
   .chip[aria-pressed="true"] b{color:var(--blue-ink)}
-  .search{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ink);padding:8px 2px}
+  .search{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ink);padding:0 2px;min-height:44px}
   .search svg{width:18px;height:18px;color:var(--ink-3);flex:none}
-  .search input{flex:1;border:0;outline:0;background:transparent;font-size:15px}
+  .search input{flex:1;min-height:44px;border:0;outline:0;background:transparent;font-size:15px}
   .search input::placeholder{color:var(--ink-4)}
 
   /* lists */
@@ -110,6 +111,7 @@
   .who .e{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tag{font-size:12px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;white-space:nowrap;color:var(--ink-2)}
   .tag.won{border-color:transparent;background:var(--ink);color:#fff}
+  .tag.skip{border-color:rgba(217,67,90,.4);color:var(--danger)}
   .item.is-won .n{color:var(--ink-4)}
   .empty{padding:32px 18px;text-align:center;color:var(--ink-3);font-size:14px}
 
@@ -129,12 +131,8 @@
   .win .n{font-size:16px;font-weight:500;margin-top:2px}
   .win .meta{font-size:12px;color:var(--ink-3);margin-top:2px}
   .win .act{display:flex;align-items:center;gap:8px}
-  .status{height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);font-size:12px;display:flex;align-items:center;gap:6px;white-space:nowrap}
-  .status i{width:6px;height:6px;border-radius:50%;background:var(--ink-3)}
-  .status[data-s="1"] i{background:var(--blue)}
-  .status[data-s="2"]{border-color:transparent;background:rgba(47,158,107,.1);color:var(--ok)}
-  .status[data-s="2"] i{background:var(--ok)}
-  .icon-btn.sm{width:32px;height:32px}
+  .icon-btn.sm{width:32px;height:32px;position:relative}
+  .icon-btn.sm::after{content:"";position:absolute;inset:-7px}   /* 44px touch area (the 1px border sits outside the padding box), same look */
   .icon-btn.sm svg{width:15px;height:15px}
   .icon-btn.del:hover{border-color:var(--danger);color:var(--danger)}
 
@@ -149,51 +147,43 @@
   /* liquid-metal slots (filled by prize-assets/lmb/mount.js) */
   [data-lmb]{display:flex;justify-content:center;align-items:center;min-height:56px}
   [data-lmb].is-off{opacity:.4;pointer-events:none;filter:grayscale(.6)}
-  @media (max-width:575px){[data-lmb]{min-height:49px}}
+  @media (max-width:575px),(max-height:480px){[data-lmb]{min-height:49px}}
+  /* sideways phone: a slimmer bottom bar and less reserved space under the content */
+  @media (max-height:480px){
+    .dock{padding:8px 20px calc(8px + env(safe-area-inset-bottom))}
+    body{padding-bottom:72px}
+  }
   .lmb button:focus-visible{outline:2px solid #2b6cff;outline-offset:3px}
 
   /* Show Screen demo link (opens in a new tab) */
-  .show-btn{height:40px;padding:0 16px;font-size:14px;margin-top:16px;background:rgba(255,255,255,.8);backdrop-filter:blur(6px);color:var(--ink);text-decoration:none}
+  .show-btn{height:44px;padding:0 16px;font-size:14px;margin-top:16px;background:rgba(255,255,255,.8);backdrop-filter:blur(6px);color:var(--ink);text-decoration:none}
   .show-btn:hover{border-color:var(--ink)}
 
   /* dialogs */
   dialog{border:0;padding:0;background:transparent;max-width:none;max-height:none;width:100%;height:100%;color:var(--ink)}
   dialog::backdrop{background:rgba(11,13,20,.45);backdrop-filter:blur(4px)}
-  .sheet{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);background:var(--surface);border:1px solid var(--line);animation:up .35s cubic-bezier(.2,.8,.2,1)}
+  /* the sheet scrolls inside itself when the screen is short (e.g. a phone held sideways), and the banner stays put so the close button is always reachable */
+  .sheet{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);animation:up .35s cubic-bezier(.2,.8,.2,1)}
   @media (min-width:640px){.sheet{bottom:auto;top:50%;transform:translate(-50%,-50%);animation:fade .25s ease}}
   @keyframes up{from{transform:translate(-50%,100%)}}
   @keyframes fade{from{opacity:0}}
-  .sheet .banner{background:var(--banner);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+  .sheet .banner{position:sticky;top:0;z-index:2;background:var(--banner);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
   .sheet .banner span{font-family:var(--serif);letter-spacing:.1em;text-transform:uppercase;font-size:13px}
-  .sheet .banner button{color:#fff;opacity:.7;font-size:22px;line-height:1}
+  .sheet .banner button{color:#fff;opacity:.7;font-size:22px;line-height:1;min-width:44px;min-height:44px;margin:-14px -12px -14px 0;display:grid;place-items:center}
   .sheet .body{padding:22px 20px 24px}
-  .field{margin-bottom:18px}
-  .field label{display:block;font-size:13px;color:var(--ink-3);margin-bottom:8px}
-  .opts{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}
-  .opt{padding:14px;text-align:left;font-size:14px;border-left:1px solid var(--line);border-top:1px solid var(--line);margin:-1px 0 0 -1px}
-  .opt small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
-  .opt[aria-pressed="true"]{background:var(--blue-tint);box-shadow:inset 0 0 0 1px var(--blue);color:var(--blue-ink)}
-  .eligible{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-top:1px solid var(--line-2);margin-bottom:18px;font-size:14px;color:var(--ink-2)}
-  .eligible b{font-weight:500;font-size:30px;color:var(--ink)}
   .sheet .pill{width:100%}
+  .cardface img,.cardface video{display:block;width:100%;height:100%;border-radius:10px;object-fit:cover;background:#eee}
 
   /* draw stage */
   .stage{text-align:center;padding:18px 0 8px}
   /* card deck: shuffles while drawing, then the top card flips to the winner's character */
-  .deck{position:relative;width:150px;aspect-ratio:1418/1985;margin:6px auto 22px}
-  .deck img,.cardface img,.cardface video{display:block;width:100%;height:100%;border-radius:10px;object-fit:cover;background:#eee}
-  .deck img{position:absolute;inset:0;box-shadow:0 14px 28px -12px rgba(17,19,24,.45)}
-  .spinning .deck img{animation:shuffle .55s ease-in-out infinite;animation-delay:calc(var(--i) * -.18s)}
-  @keyframes shuffle{0%,100%{transform:translateX(0) rotate(0)}30%{transform:translateX(-46px) rotate(-8deg)}60%{transform:translateX(46px) rotate(8deg);z-index:2}}
-  .flip{width:170px;aspect-ratio:1418/1985;margin:6px auto 20px;perspective:900px}
+  .flip{width:min(170px,max(110px,30vh));aspect-ratio:1418/1985;margin:6px auto 20px;perspective:900px}
   .flip-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.3,.9,.2,1)}
   .flip.on .flip-in{transform:rotateY(180deg)}
   .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 18px 34px -14px rgba(63,111,224,.55);border-radius:10px}
   .face.front{transform:rotateY(180deg)}
   .flip.solo{perspective:none}
   .flip.solo .face{position:relative}
-  .solo-note{margin:-6px auto 14px;max-width:300px;font-size:13px;color:var(--ink-2);line-height:1.6;padding:10px 14px;border:1px solid var(--line);background:var(--blue-tint)}
-  .solo-note b{display:block;font-family:var(--serif);font-weight:400;letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--blue-ink);margin-bottom:2px}
   .char{display:inline-block;font-size:12px;color:var(--blue-ink);margin-top:2px}
   .reel{font-size:26px;font-weight:500;min-height:40px}
   .reel-sub{font-size:13px;color:var(--ink-3);margin-top:4px;min-height:20px}
@@ -274,7 +264,7 @@
     </section>
 
     <section>
-      <div class="sec-head"><h2>Winners</h2><span class="th">แตะสถานะเพื่อเปลี่ยน</span></div>
+      <div class="sec-head"><h2>Winners</h2><span class="th">ยืนยันแล้วจากหน้าสุ่มรางวัล</span></div>
       <div class="card winners">
         <div class="banner"><span>Prize Winners</span><span id="winCount">0 คน</span></div>
         <div id="wins"></div>
@@ -285,18 +275,9 @@
 
 <div class="dock">
   <div class="in">
-    <button class="pill ghost" id="exportBtn">Export</button>
     <div id="drawSlot" data-lmb="สุ่มรางวัล" data-action="open-draw"></div>
   </div>
 </div>
-
-<!-- draw dialog -->
-<dialog id="drawDlg">
-  <div class="sheet">
-    <div class="banner"><span>Lucky Draw</span><button data-close aria-label="ปิด">×</button></div>
-    <div class="body" id="drawBody"></div>
-  </div>
-</dialog>
 
 <!-- confirm delete -->
 <dialog id="delDlg">
@@ -323,46 +304,28 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="prize-assets/prize-data.js"></script>
+<script src="prize-assets/prize-store.js"></script>
 <script>
-// ---- sample data (placeholder, not real participants) ----
-const TICKETS = ["บัตร Ultimate 1 วัน","บัตร Ultimate 2 วัน"];
-const PRIZES = [
-  {name:"ตั๋วเครื่องบิน", qty:3},
-  {name:"Gift Voucher 5,000", qty:5},
-  {name:"Personalized Playbook", qty:10},
-  {name:"ของที่ระลึก", qty:20},
-];
-// c = character slug from the Investor DNA assessment, or null if not taken yet
-const CHARS = {
-  guardian:"The Guardian", harvester:"The Harvester", steadyhand:"The Steady Hand", diamondhand:"The Diamond Hand",
-  analyst:"The Analyst", planner:"The Planner", explorer:"The Explorer", sage:"The Sage", maverick:"The Maverick",
-  waverider:"The Wave Rider", contrarian:"The Contrarian", collector:"The Collector",
-};
-const people = [
-  {id:1,n:"ผู้เข้าร่วม A",e:"user.a@example.com",t:0,c:"analyst"},
-  {id:2,n:"ผู้เข้าร่วม B",e:"user.b@example.com",t:1,c:"guardian"},
-  {id:3,n:"ผู้เข้าร่วม C",e:"user.c@example.com",t:1,c:null},
-  {id:4,n:"ผู้เข้าร่วม D",e:"user.d@example.com",t:0,c:"explorer"},
-  {id:5,n:"ผู้เข้าร่วม E",e:"user.e@example.com",t:1,c:null},
-  {id:6,n:"ผู้เข้าร่วม F",e:"user.f@example.com",t:1,c:"collector"},
-  {id:7,n:"ผู้เข้าร่วม G",e:"user.g@example.com",t:0,c:"waverider"},
-];
-let winners = [
-  {pid:2,prize:"ตั๋วเครื่องบิน",at:"5/10/69 17:57",s:2},
-  {pid:5,prize:"ตั๋วเครื่องบิน",at:"5/10/69 17:58",s:0},
-];
-const STATUS = ["ได้รางวัล","ติดต่อแล้ว","รับรางวัลแล้ว"];
+// People, prizes and draw results are shared with draw-control.html and show-screen.html through
+// PrizeStore. This page only reads them, and removes a winner (who then returns to the draw pool).
+const D = window.PRIZE_DATA, Store = window.PrizeStore;
+const { TICKETS, PRIZES, CHARS, PEOPLE: people } = D;
 
 let filter = -1, query = "";
 const $ = s => document.querySelector(s);
-const wonIds = () => new Set(winners.map(w => w.pid));
-const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const person = id => people.find(p => p.id === id);
+const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function render(){
-  const won = wonIds();
+  const S = Store.load();
+  const won = new Set(S.winners.map(w => w.pid));
+  const skipped = new Set(S.skipped.filter(s => !s.restored).map(s => s.pid));
+  const eligible = people.filter(p => !won.has(p.id) && !skipped.has(p.id)).length;
   $("#sTotal").textContent = people.length;
-  $("#sWon").textContent = winners.length;
-  $("#sLeft").textContent = people.length - won.size;
+  $("#sWon").textContent = S.winners.length;
+  $("#sLeft").textContent = eligible;
 
   // breakdown
   $("#bars").innerHTML = TICKETS.map((t,i) => {
@@ -380,32 +343,34 @@ function render(){
   const q = query.trim().toLowerCase();
   const rows = people.filter(p => (filter < 0 || p.t === filter) && (!q || p.n.toLowerCase().includes(q) || p.e.toLowerCase().includes(q)));
   $("#listCount").textContent = `${rows.length} รายการ`;
+  const tag = p => won.has(p.id) ? `<span class="tag won">ได้รางวัลแล้ว</span>`
+    : skipped.has(p.id) ? `<span class="tag skip">ข้ามแล้ว</span>`
+    : `<span class="tag">${TICKETS[p.t].replace("บัตร ","")}</span>`;
   $("#list").innerHTML = rows.length ? rows.map((p,i) => `
     <li class="item ${won.has(p.id) ? "is-won" : ""}">
       <span class="idx">${String(i+1).padStart(2,"0")}</span>
       <div class="who"><div class="n">${esc(p.n)}</div><div class="e">${esc(p.e)}</div></div>
-      ${won.has(p.id) ? `<span class="tag won">ได้รางวัลแล้ว</span>` : `<span class="tag">${TICKETS[p.t].replace("บัตร ","")}</span>`}
+      ${tag(p)}
     </li>`).join("") : `<li class="empty">ไม่พบรายชื่อที่ตรงกับการค้นหา</li>`;
 
-  // winners
-  $("#winCount").textContent = `${winners.length} คน`;
-  $("#wins").innerHTML = winners.length ? winners.map((w,i) => {
-    const p = people.find(x => x.id === w.pid);
+  // winners, newest first; data-card / data-del carry the index in the shared winners list
+  $("#winCount").textContent = `${S.winners.length} คน`;
+  $("#wins").innerHTML = S.winners.length ? S.winners.map((w,i) => ({w,i})).reverse().map(({w,i}) => {
+    const p = person(w.pid), prize = PRIZES[w.prize].name;
     return `<div class="win">
       <button class="thumb ${p.c ? "" : "nochar"}" data-card="${i}" aria-label="${p.c ? "ดูการ์ด " + CHARS[p.c] : "ยังไม่มีการ์ดตัวละคร"}">
         <img src="prize-assets/cards/${p.c || "back"}.webp" alt="" loading="lazy" width="56" height="78"></button>
-      <div><div class="prize">${esc(w.prize)}</div><div class="n">${esc(p.n)}</div>
+      <div><div class="prize">${esc(prize)}</div><div class="n">${esc(p.n)}</div>
         <div class="meta">${esc(p.e)} · ${TICKETS[p.t]} · ${w.at}</div>
         ${p.c ? `<span class="char">${CHARS[p.c]}</span>` : ""}</div>
       <div class="act">
-        <button class="status" data-st="${i}" data-s="${w.s}"><i></i>${STATUS[w.s]}</button>
         <button class="icon-btn sm del" data-del="${i}" aria-label="ลบ">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg>
         </button>
       </div></div>`;
   }).join("") : `<div class="empty">ยังไม่มีผู้ได้รับรางวัล</div>`;
 
-  $("#drawSlot").classList.toggle("is-off", people.length - won.size === 0);
+  $("#drawSlot").classList.toggle("is-off", eligible === 0);
 }
 
 // events
@@ -413,117 +378,62 @@ $("#chips").addEventListener("click", e => { const b = e.target.closest("[data-f
 $("#q").addEventListener("input", e => { query = e.target.value; render(); });
 $("#wins").addEventListener("click", e => {
   const cd = e.target.closest("[data-card]");
-  if(cd){ openCard(winners[+cd.dataset.card]); return; }
-  const st = e.target.closest("[data-st]");
-  if(st){ const w = winners[+st.dataset.st]; w.s = (w.s + 1) % STATUS.length; render(); return; }
+  if(cd){ openCard(+cd.dataset.card); return; }
   const d = e.target.closest("[data-del]");
   if(d){ openDelete(+d.dataset.del); }
 });
 document.querySelectorAll("dialog").forEach(dl => {
   dl.addEventListener("click", e => { if(e.target === dl || e.target.closest("[data-close]")) dl.close(); });
 });
-$("#exportBtn").addEventListener("click", () => toast("Export CSV (ตัวอย่าง)"));
 
 function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
 
-// delete
+// remove a winner: they go back into the pool the Control Panel draws from
 let delIdx = -1;
 function openDelete(i){
+  const w = Store.load().winners[i]; if(!w) return;
   delIdx = i;
-  const w = winners[i], p = people.find(x => x.id === w.pid);
-  $("#delText").innerHTML = `ลบ <b>${esc(p.n)}</b> ออกจากผู้ได้รับรางวัล <b>${esc(w.prize)}</b> ?<br>ผู้เข้าร่วมคนนี้จะกลับไปอยู่ในรายชื่อที่สุ่มได้อีกครั้ง`;
+  $("#delText").innerHTML = `ลบ <b>${esc(person(w.pid).n)}</b> ออกจากผู้ได้รับรางวัล <b>${esc(PRIZES[w.prize].name)}</b> ?<br>ผู้เข้าร่วมคนนี้จะกลับไปอยู่ในรายชื่อที่สุ่มได้อีกครั้ง`;
   $("#delDlg").showModal();
 }
-$("#delOk").addEventListener("click", () => { winners.splice(delIdx,1); $("#delDlg").close(); render(); toast("ลบผู้ได้รับรางวัลแล้ว"); });
-
-// draw flow
-let dPrize = 0, dTicket = -1;
-const pool = () => { const won = wonIds(); return people.filter(p => !won.has(p.id) && (dTicket < 0 || p.t === dTicket)); };
-function prizeLeft(i){ return PRIZES[i].qty - winners.filter(w => w.prize === PRIZES[i].name).length; }
-
-function drawSetup(){
-  // move off a prize that just ran out (e.g. after "สุ่มต่อ")
-  if(prizeLeft(dPrize) <= 0){ const i = PRIZES.findIndex((_,i) => prizeLeft(i) > 0); dPrize = i < 0 ? 0 : i; }
-  const n = pool().length;
-  $("#drawBody").innerHTML = `
-    <div class="field"><label>รางวัล</label><div class="opts">
-      ${PRIZES.map((p,i) => `<button class="opt" data-p="${i}" aria-pressed="${dPrize===i}" ${prizeLeft(i)<=0?"disabled style='opacity:.4'":""}>${p.name}<small>เหลือ ${prizeLeft(i)} / ${p.qty}</small></button>`).join("")}
-    </div></div>
-    <div class="field"><label>ผู้มีสิทธิ์</label><div class="opts">
-      ${[{l:"ทุกประเภทบัตร",i:-1},...TICKETS.map((t,i)=>({l:t,i}))].map(o => `<button class="opt" data-t="${o.i}" aria-pressed="${dTicket===o.i}">${o.l}</button>`).join("")}
-    </div></div>
-    <div class="eligible"><span>ผู้มีสิทธิ์ลุ้น (ยังไม่เคยได้รางวัล)</span><b>${n}</b></div>
-    <div data-lmb="เริ่มสุ่ม" data-action="go" data-fill class="${n===0 || prizeLeft(dPrize)<=0 ? "is-off" : ""}"></div>`;
-}
-$("#drawBody").addEventListener("click", e => {
-  const p = e.target.closest("[data-p]"); if(p && !p.disabled){ dPrize = +p.dataset.p; drawSetup(); return; }
-  const t = e.target.closest("[data-t]"); if(t){ dTicket = +t.dataset.t; drawSetup(); return; }
+$("#delOk").addEventListener("click", () => {
+  const S = Store.load();   // fresh copy, so nothing the Control Panel just saved gets overwritten
+  S.winners.splice(delIdx, 1);
+  Store.save(S);
+  $("#delDlg").close(); render(); toast("ลบผู้ได้รับรางวัลแล้ว");
 });
-// liquid-metal buttons report clicks as "lmb-click" on their slot
+
+// the draw itself happens on the Control Panel page
 document.addEventListener("lmb-click", e => {
-  const a = e.target.dataset.action;
-  if(a === "open-draw") window.openDraw();
-  if(a === "go") spin();
-  if(a === "again") drawSetup();
+  if(e.target.dataset.action === "open-draw") location.href = "draw-control.html";
 });
-// called by the liquid-metal button (module script below)
-window.openDraw = () => {
-  if($("#drawSlot").classList.contains("is-off")) return;
-  drawSetup(); $("#drawDlg").showModal();
-};
-
-const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-const deck = () => `<div class="deck">${[0,1,2].map(i => `<img src="prize-assets/cards/back.webp" alt="" style="--i:${i}">`).join("")}</div>`;
-const NOCHAR = `<div class="solo-note"><b>Investor DNA</b>ยังไม่ได้ค้นหา Investor DNA<br>ชวนผู้โชคดีไปทำแบบประเมินเพื่อรับการ์ดตัวละครของตัวเอง</div>`;
 
 // winner card: flips from the card back to the character card (back only when no character yet)
 function flipCard(p){
   const back = `<img src="prize-assets/cards/back.webp" alt="หลังการ์ด">`;
-  if(!p.c) return `<div class="flip solo"><div class="face cardface">${back}</div></div>${NOCHAR}`;
+  if(!p.c) return `<div class="flip solo"><div class="face cardface">${back}</div></div>`;
   const front = reduceMotion()
     ? `<img src="prize-assets/cards/${p.c}.webp" alt="การ์ด ${CHARS[p.c]}">`
     : `<video src="prize-assets/cardvid/${p.c}.mp4" poster="prize-assets/cards/${p.c}.webp" autoplay loop muted playsinline preload="none"></video>`;
   return `<div class="flip"><div class="flip-in"><div class="face cardface">${back}</div><div class="face front cardface">${front}</div></div></div>`;
 }
-function flipOn(root, delay){
-  const f = root.querySelector(".flip:not(.solo)"); if(!f) return;
-  setTimeout(() => f.classList.add("on"), delay);
-}
-function openCard(w){
-  const p = people.find(x => x.id === w.pid);
+function openCard(i){
+  const w = Store.load().winners[i]; if(!w) return;
+  const p = person(w.pid);
   $("#cardBody").className = "stage done";
   $("#cardBody").innerHTML = `${flipCard(p)}
-    <div class="eyebrow">${esc(w.prize)} <span class="rule"></span></div>
+    <div class="eyebrow">${esc(PRIZES[w.prize].name)} <span class="rule"></span></div>
     <div class="reel">${esc(p.n)}</div>
     <div class="reel-sub">${p.c ? CHARS[p.c] + " · " : ""}${esc(p.e)}</div>`;
   $("#cardDlg").showModal();
-  flipOn($("#cardBody"), 150);
+  const f = $("#cardBody .flip:not(.solo)");
+  if(f) setTimeout(() => f.classList.add("on"), 150);
 }
 $("#cardDlg").addEventListener("close", () => { $("#cardBody").innerHTML = ""; });
 
-function spin(){
-  const list = pool(); if(!list.length) return;
-  const pick = list[Math.floor(Math.random() * list.length)];
-  $("#drawBody").innerHTML = `<div class="stage spinning">${deck()}<div class="reel" id="reel"></div><div class="reel-sub">กำลังสุ่ม ${PRIZES[dPrize].name}…</div></div>`;
-  const reel = $("#reel"); let k = 0;
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const iv = setInterval(() => { reel.textContent = list[k++ % list.length].n; }, 80);
-  setTimeout(() => {
-    clearInterval(iv);
-    const d = new Date();
-    const at = `${d.getDate()}/${d.getMonth()+1}/${(d.getFullYear()+543)%100} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-    winners.unshift({pid:pick.id, prize:PRIZES[dPrize].name, at, s:0});
-    render();
-    const stage = $("#drawBody .stage");
-    stage.classList.replace("spinning", "done");
-    stage.querySelector(".deck").outerHTML = flipCard(pick);
-    stage.querySelector(".reel").textContent = pick.n;
-    stage.querySelector(".reel-sub").textContent = `${pick.c ? CHARS[pick.c] + " · " : ""}${pick.e} · ${TICKETS[pick.t]}`;
-    stage.querySelector(".reel").insertAdjacentHTML("beforebegin", `<div class="eyebrow">${esc(PRIZES[dPrize].name)} <span class="rule"></span></div>`);
-    stage.insertAdjacentHTML("beforeend", `<div class="stage-actions"><button class="pill ghost" data-close>เสร็จสิ้น</button><div data-lmb="สุ่มต่อ" data-action="again" data-fill></div></div>`);
-    flipOn(stage, 250);
-  }, reduce ? 300 : 2200);
-}
+// keep in step with the Control Panel: other tabs, and coming back to this page
+Store.onChange(render);
+addEventListener("pageshow", render);
 
 render();
 </script>
