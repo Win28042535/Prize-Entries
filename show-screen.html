@@ -95,7 +95,7 @@
 
   /* idle */
   /* the headline leads; the event logo is the supporting identity (64% of its old width) */
-  .idle img{width:480px;filter:drop-shadow(0 16px 32px rgba(17,19,24,.16))}
+  .idle img{width:240px;filter:drop-shadow(0 16px 32px rgba(17,19,24,.16))}
   .idle .k{margin-top:40px}
   .idle h2{margin:18px 0 6px;font-size:170px;font-weight:700}
   .idle p{margin-top:12px;font-size:46px;font-weight:700;color:var(--ink-2)}
@@ -104,8 +104,8 @@
   .prize h2,.idle h2,.board h2{font-weight:600;font-size:150px;line-height:1.05;letter-spacing:-.01em}
   .prize{padding-bottom:90px}   /* optical centre sits a little above the middle */
   .prize h2{margin:20px 0 22px}
-  .prize .qty{font-size:46px;font-weight:700;color:var(--ink-2)}
-  .prize .qty b{font-weight:700;font-size:64px;color:var(--ink);margin:0 8px}
+  .prize .qty{font-size:46px;font-weight:700;color:var(--ink-2);display:flex;align-items:baseline;justify-content:center;gap:14px}
+  .prize .qty b{font-weight:700;font-size:110px;line-height:1;color:var(--ink)}
   /* same DNA as the winners-board tile: white glass, hairline border, bold ink value, blue-ink label */
   .rule{margin-top:48px;display:inline-flex;align-items:stretch;gap:18px}
   .rule div{padding:22px 44px;text-align:left;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
@@ -134,7 +134,8 @@
   body.screen-main .drawing .deck{width:170px;margin:18px 0 8px}
   body.screen-main .dv-A .count{font-size:200px;min-height:200px}
   body.screen-main .prize{padding-bottom:20px}
-  .dv-B .count{font-size:120px;min-height:120px}
+  /* B: the wheel itself shows the countdown, so no number under it */
+  .dv-B .count{display:none}
 
   .count.tick{animation:tick .9s cubic-bezier(.2,.8,.2,1)}
   @keyframes tick{from{transform:scale(1.35);opacity:0;color:var(--blue-ink)}to{transform:none;opacity:1}}
@@ -240,7 +241,7 @@
 
   <div class="top">
     <img src="prize-assets/img/efinBT.png" alt="efin | BetterTrade">
-    <span class="eyebrow">Better Trade 2026 <i>✦</i> Lucky Draw</span>
+    <span class="eyebrow">BetterTrade 2026 <i>✦</i> Lucky Draw</span>
   </div>
 
   <section class="scene idle" data-scene="idle">
@@ -253,7 +254,7 @@
   <section class="scene prize" data-scene="prize">
     <div class="k">Next Prize</div>
     <h2 id="pName"></h2>
-    <div class="qty">รางวัลนี้มีทั้งหมด <b id="pQty"></b> รางวัล</div>
+    <div class="qty"><b id="pQty"></b> รางวัล</div>
     <div class="rule">
       <div><small>สุ่มจาก</small><span id="pPool"></span></div>
       <div><small>ผู้มีสิทธิ์ลุ้น</small><span class="num" id="pCount"></span></div>
