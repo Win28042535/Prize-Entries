@@ -49,9 +49,7 @@
   .el.candle{left:60px;top:300px;width:250px;animation-delay:-1s}
   .el.chest{left:240px;bottom:112px;width:170px;animation-delay:-3s}
   .el.efin{right:356px;bottom:64px;width:124px;animation-delay:-2s}
-  .el.gift{right:138px;top:128px;width:190px;animation-delay:-1.5s;transition:opacity .6s}
-  /* the prize scene has its own big gift above the title, so the wall one steps aside there */
-  #stage[data-scene="prize"] .el.gift{opacity:0}
+  .el.gift{right:138px;top:128px;width:190px;animation-delay:-1.5s}
   @keyframes bob{50%{transform:translateY(-18px) rotate(-3deg)}}
 
   .top{position:absolute;left:96px;right:96px;top:64px;display:flex;justify-content:space-between;align-items:center;z-index:5}
@@ -76,10 +74,10 @@
 
   /* prize */
   .prize h2,.idle h2,.board h2{font-weight:600;font-size:150px;line-height:1.05;letter-spacing:-.01em}
+  .prize{padding-bottom:90px}   /* optical centre sits a little above the middle */
   .prize h2{margin:20px 0 22px}
-  .prize-gift{width:200px;height:200px;margin-bottom:6px;filter:drop-shadow(0 22px 26px rgba(63,111,224,.28));animation:bob 5s ease-in-out infinite}
-  .prize .qty{font-size:34px;color:var(--ink-2)}
-  .prize .qty b{font-weight:500;font-size:54px;color:var(--ink);margin:0 6px}
+  .prize .qty{font-size:46px;font-weight:700;color:var(--ink-2)}
+  .prize .qty b{font-weight:700;font-size:64px;color:var(--ink);margin:0 8px}
   /* same DNA as the winners-board tile: white glass, hairline border, bold ink value, blue-ink label */
   .rule{margin-top:48px;display:inline-flex;align-items:stretch;gap:18px}
   .rule div{padding:22px 44px;text-align:left;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
@@ -103,16 +101,11 @@
   .reel-band{position:absolute;left:0;right:0;top:240px;height:120px;border-block:2px solid var(--blue);background:var(--blue-tint)}
   .reel-in{position:absolute;left:0;right:0;top:0;will-change:transform}
   .reel-in div{position:absolute;left:0;right:0;height:120px;line-height:120px;font-size:100px;font-weight:700;white-space:nowrap;color:var(--ink);text-align:center;will-change:transform,opacity}
-  /* A: a gift box on each side of the shuffling deck (outside its +-120px sweep), tilted apart */
-  .dv-A{position:relative}
-  .flank{position:absolute;top:210px;width:170px;height:170px;filter:drop-shadow(0 18px 22px rgba(63,111,224,.25));animation:bob 6s ease-in-out infinite}
-  .flank.l{left:calc(50% - 480px);rotate:-8deg}
-  .flank.r{left:calc(50% + 310px);animation-delay:-3s;rotate:8deg}
   .dv-B .count{font-size:120px;min-height:120px}
 
   .count.tick{animation:tick .9s cubic-bezier(.2,.8,.2,1)}
   @keyframes tick{from{transform:scale(1.35);opacity:0;color:var(--blue-ink)}to{transform:none;opacity:1}}
-  .drawing .sub{font-size:30px;color:var(--ink-2);margin-top:4px}
+  .drawing .sub{font-size:46px;font-weight:700;color:var(--ink-2);margin-top:6px}
 
   /* redraw interstitial */
   .redraw h2{font-weight:600;font-size:110px;margin-top:24px}
@@ -127,7 +120,7 @@
   /* font size is fitted to the width in JS so long names stay on one line */
   .who h1{font-weight:600;font-size:170px;line-height:1.15;margin:6px 0 0;letter-spacing:-.01em;white-space:nowrap}
   .who .pline{margin-top:18px;font-size:120px;font-weight:700;line-height:1.15;color:var(--blue-ink)}
-  .who .meta{margin-top:24px;font-size:28px;color:var(--ink-3)}
+  .who .meta{margin-top:24px;font-size:46px;font-weight:700;color:var(--ink-2)}
 
   /* board */
   .board h2{margin:8px 0 26px}
@@ -138,7 +131,7 @@
   .tile > div{min-width:0;flex:1}
   .tile b{display:block;font-size:40px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tile small{display:block;font-size:30px;font-weight:500;color:var(--blue-ink);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .board .empty{font-size:34px;color:var(--ink-3)}
+  .board .empty{font-size:46px;font-weight:700;color:var(--ink-2)}
   /* B: same grid, a big order number instead of the character card */
   .tile .rank{flex:none;width:84px;text-align:center;font-size:58px;font-weight:600;line-height:1;color:var(--blue-ink)}
   .grid.ranked .tile{padding:16px 18px 16px 10px}
@@ -211,7 +204,6 @@
   </section>
 
   <section class="scene prize" data-scene="prize">
-    <img class="prize-gift" src="prize-assets/img/gift.webp" alt="">
     <div class="k">Next Prize</div>
     <h2 id="pName"></h2>
     <div class="qty">รางวัลนี้มีทั้งหมด <b id="pQty"></b> รางวัล</div>
@@ -226,8 +218,6 @@
 
     <!-- A: shuffling deck of back cards -->
     <div class="dv dv-A">
-      <img class="flank l" src="prize-assets/img/gift.webp" alt="">
-      <img class="flank r" src="prize-assets/img/gift.webp" alt="">
       <div class="deck">
         <img src="prize-assets/cards/back.webp" alt="" style="--i:0">
         <img src="prize-assets/cards/back.webp" alt="" style="--i:1">
