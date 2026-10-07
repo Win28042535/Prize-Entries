@@ -41,13 +41,8 @@
     background:radial-gradient(ellipse 560px 340px at 50% 56%,rgba(255,255,255,.82),rgba(255,255,255,.5) 55%,rgba(255,255,255,0) 100%)}
   .floor{position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))}
 
-  /* the ship is the gimmick: bottom-right, smaller than the content, size set per scene */
-  .ship{position:absolute;right:28px;bottom:0;height:540px;transform-origin:bottom right;
-    filter:drop-shadow(0 20px 40px rgba(17,19,24,.18));transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .8s}
-  #stage[data-scene="prize"] .ship,#stage[data-scene="drawing"] .ship,#stage[data-scene="redraw"] .ship{transform:scale(.74)}
-  #stage[data-scene="reveal"] .ship{transform:scale(.56);animation:shipglow 2.4s ease-out .6s}
-  #stage[data-scene="board"] .ship{transform:translateY(70%) scale(.6);opacity:.0}
-  @keyframes shipglow{30%{filter:drop-shadow(0 0 40px rgba(101,152,255,.9)) brightness(1.15)}}
+  /* the ship is the gimmick: bottom-right, same size and place in every scene, behind all content */
+  .ship{position:absolute;right:28px;bottom:0;height:400px;filter:drop-shadow(0 20px 40px rgba(17,19,24,.18))}
 
   /* glass elements stay at the edges so the centre is free for names; the ship carries its own set */
   .el{position:absolute;filter:drop-shadow(0 26px 30px rgba(63,111,224,.22));animation:bob 6s ease-in-out infinite}
@@ -71,10 +66,9 @@
 
   /* idle */
   /* the headline leads; the event logo is the supporting identity (64% of its old width) */
-  .idle img{width:691px;filter:drop-shadow(0 16px 32px rgba(17,19,24,.16))}
-  .idle .k{margin-top:30px;font-size:76px;gap:28px}
-  .idle .k::before,.idle .k::after{width:120px}
-  .idle h2{margin:4px 0 6px}
+  .idle img{width:480px;filter:drop-shadow(0 16px 32px rgba(17,19,24,.16))}
+  .idle .k{margin-top:40px}
+  .idle h2{margin:18px 0 6px}
   .idle p{margin-top:10px;font-size:34px;color:var(--ink-2)}
 
   /* prize */
@@ -82,12 +76,12 @@
   .prize h2{margin:28px 0 22px}
   .prize .qty{font-size:34px;color:var(--ink-2)}
   .prize .qty b{font-weight:500;font-size:54px;color:var(--ink);margin:0 6px}
-  .rule{margin-top:44px;display:inline-flex;align-items:stretch;border:1px solid var(--line);background:rgba(255,255,255,.72);backdrop-filter:blur(8px)}
-  .rule div{padding:20px 36px;text-align:left}
-  .rule div+div{border-left:1px solid var(--line)}
-  .rule small{display:block;font-size:20px;color:var(--ink-3)}
-  .rule span{font-size:32px;font-weight:500}
-  .rule .num{font-size:44px;font-weight:500;line-height:1}
+  /* same DNA as the winners-board tile: white glass, hairline border, bold ink value, blue-ink label */
+  .rule{margin-top:48px;display:inline-flex;align-items:stretch;gap:18px}
+  .rule div{padding:22px 44px;text-align:left;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  .rule small{display:block;font-size:30px;font-weight:500;color:var(--blue-ink);margin-bottom:2px}
+  .rule span{display:block;font-size:56px;font-weight:600;line-height:1.2}
+  .rule .num{font-size:72px;font-weight:600;line-height:1.1}
 
   /* drawing */
   .deck{position:relative;width:300px;aspect-ratio:1418/1985;margin:34px 0 40px}
@@ -133,18 +127,8 @@
   .redraw p{font-size:34px;color:var(--ink-2);margin-top:16px}
 
   /* reveal */
-  /* reveal: name and prize lead, the character card supports from the side */
-  .reveal{flex-direction:row;gap:72px}
-  .side{flex:none;width:260px;display:flex;flex-direction:column;align-items:center;gap:16px;transform:rotate(4deg);margin-top:-70px}
-  .flip{width:260px;aspect-ratio:1418/1985;perspective:1600px;flex:none}
-  .flip-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1.1s cubic-bezier(.3,.9,.2,1)}
-  .flip.on .flip-in{transform:rotateY(180deg)}
-  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;overflow:hidden;
-    box-shadow:0 40px 70px -26px rgba(63,111,224,.6),0 0 0 1px rgba(255,255,255,.6)}
-  .face.front{transform:rotateY(180deg)}
-  .face img{display:block;width:100%;height:100%;object-fit:cover}
-  .flip.solo .flip-in{transform:none}
-  .who{width:1080px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  /* reveal: one centred column, no character card */
+  .who{width:1500px;display:flex;flex-direction:column;align-items:center;text-align:center}
   .who .crown{width:92px;height:92px;display:block;filter:drop-shadow(0 10px 16px rgba(63,111,224,.3))}
   .lucky{margin-top:10px;font-size:36px;color:var(--ink-2);display:flex;align-items:center;gap:14px}
   .lucky i{font-style:normal;font-size:22px;color:var(--ink)}
@@ -164,7 +148,7 @@
   .tile small{display:block;font-size:30px;font-weight:500;color:var(--blue-ink);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .board .empty{font-size:34px;color:var(--ink-3)}
 
-  #confetti{position:absolute;inset:0;z-index:6;pointer-events:none}
+  #confetti{position:absolute;inset:0;z-index:3;pointer-events:none}
   .guide{position:absolute;inset:54px 96px;border:2px dashed rgba(229,59,216,.7);z-index:9;display:none;pointer-events:none}
   .guide::after{content:"SAFE AREA 1920×1080 · 5%";position:absolute;left:12px;top:8px;font:600 18px var(--sans);color:#e63bd8}
   body.show-guide .guide{display:block}
@@ -268,7 +252,6 @@
       <div class="pline" id="wLine"></div>
       <div class="meta" id="wMeta"></div>
     </div>
-    <div class="side"><div id="card"></div></div>
   </section>
 
   <section class="scene board" data-scene="board">
@@ -365,7 +348,7 @@ function startReel(st, dur){
 function go(scene){
   stage.dataset.scene = scene;
   document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.dataset.scene === scene));
-  if(scene !== "reveal"){ $("#card").innerHTML = ""; parts = []; emitUntil = 0; }
+  if(scene !== "reveal"){ parts = []; emitUntil = 0; }
   const chip = scene === "redraw" ? "drawing" : scene;
   document.querySelectorAll("#demoBar [data-demo]").forEach(b => b.setAttribute("aria-pressed", b.dataset.demo === chip));
 }
@@ -398,12 +381,7 @@ function showDrawing(st, done){
 }
 
 function showReveal(st, instant){
-  const w = st.winner, ch = w.c ? D.CHARS[w.c] : null;
-  const back = `<img src="prize-assets/cards/back.webp" alt="">`;
-  $("#card").innerHTML = ch
-    ? `<div class="flip"><div class="flip-in"><div class="face">${back}</div>
-        <div class="face front"><img src="prize-assets/cards/${w.c}.webp" alt=""></div></div></div>`
-    : `<div class="flip solo"><div class="flip-in"><div class="face">${back}</div></div></div>`;
+  const w = st.winner;
   const name = nm(w.n), h1 = $("#wName");
   h1.textContent = name;
   $("#wLine").textContent = st.prize.name;
@@ -413,9 +391,7 @@ function showReveal(st, instant){
   h1.style.fontSize = "";
   const max = h1.parentElement.clientWidth;
   if(h1.scrollWidth > max) h1.style.fontSize = `${Math.floor(170 * max / h1.scrollWidth)}px`;
-  const flip = $("#card .flip:not(.solo)");
-  if(flip){ instant ? flip.classList.add("on") : later(() => flip.classList.add("on"), 500); }
-  if(!instant) later(confetti, ch ? 900 : 300);
+  if(!instant) later(confetti, 300);
 }
 
 function showBoard(st){
@@ -456,12 +432,12 @@ function apply(st, instant){
 // ---- confetti in the brand rim palette ----
 const cv = $("#confetti"), cx = cv.getContext("2d");
 const COLORS = ["#00d4fe","#1f87e6","#113cf3","#722df4","#e63bd8","#f79319","#ffffff","#cfd8ea"];
-// A brief gimmick, not a show: about 45 small pieces over ~1.2s, falling from the top edge down the
-// outer sides only, so the middle (winner name, prize, card) stays clear. Each piece fades out
+// A brief gimmick, not a show: about 45 small pieces over ~1.2s, falling from the top edge through
+// the centre, drawn behind the text so the winner name stays readable. Each piece fades out
 // between FADE_FROM and FADE_TO and is gone ~3.5s after the reveal.
 const FADE_FROM = 620, FADE_TO = 940;
 const RATE = 38;                                      // pieces per second while emitting
-const BANDS = [[30, 190], [1730, 1890]];             // x ranges (1920 stage) hugging the left and right edges
+const BANDS = [[380, 1540]];                          // x range (1920 stage): the centre, falling from the top edge, drawn behind the text
 let parts = [], raf = 0, emitUntil = 0, lastT = 0, acc = 0;
 function confetti(){
   if(reduce) return;
@@ -469,7 +445,7 @@ function confetti(){
   if(!raf) raf = requestAnimationFrame(tick);
 }
 function spawn(){
-  const [a, b] = BANDS[Math.random() < .5 ? 0 : 1];
+  const [a, b] = BANDS[Math.floor(Math.random() * BANDS.length)];
   parts.push({
     x: a + Math.random() * (b - a), y: -20 - Math.random() * 40,
     vx: (Math.random() - .5) * .8, vy: 4 + Math.random() * 3,
