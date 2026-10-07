@@ -11,7 +11,7 @@ const out = path.join(root, "previews");
 const ctx = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(root, "prize-assets/scenes.js"), "utf8"), ctx);
 const scenes = ctx.window.SCENES.filter(s => s.group === "main");   // test cases stay as live thumbnails only
-const SETS = [ { id: "main", w: 1408, h: 768 }, { id: "wide", w: 4096, h: 1024 } ];
+const SETS = [ { id: "main", w: 4096, h: 1024 }, { id: "mini", w: 1408, h: 768 } ];   // Main Stage 16x4 m, Mini Stage 5.5x3 m
 
 const browser = [
   "C:/Program Files/Google/Chrome/Application/chrome.exe",

@@ -24,30 +24,38 @@
   html,body{height:100%;background:#000;overflow:hidden;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
 
   /* Two LED screens, one canvas each (set in JS from ?screen=, key S):
-       main  5.5 x 3 m  = 1408 x 768  -> virtual 1920 x 1047
-       wide  16 x 4 m   = 4096 x 1024 -> virtual 4320 x 1080
-     The virtual canvas keeps the original 1080-tall design units and is scaled to the screen's real pixels,
-     then letterboxed in black inside the window. */
+       mini  Mini Stage 5.5 x 3 m = 1408 x 768  -> virtual 1920 x 1047 (scale .73)
+       main  Main Stage 16 x 4 m  = 4096 x 1024 -> virtual 3320 x 830  (scale 1.23, exactly 4:1)
+     The virtual canvas uses the original design units and is scaled to the screen's real pixels,
+     then letterboxed in black inside the window. Main Stage is laid out in three zones:
+     glass pieces left, content centre, ship + gift right. */
   #frame{position:fixed;inset:0;overflow:hidden}
   #stage{position:absolute;left:50%;top:50%;width:1920px;height:1047px;transform-origin:center;overflow:hidden;
     background:linear-gradient(180deg,#F6F7FB 0%,#E9EDF6 100%)}
-  /* everything is composed on a 1920-wide core centred in the stage; on the wide screen the stage adds wings around it */
+  /* everything is composed on a 1920-wide core centred in the stage; on Main Stage the stage adds wings around it */
   #core{position:absolute;top:0;bottom:0;left:50%;width:1920px;margin-left:-960px}
   .wing,.wing-el,.seam{display:none}
-  body.screen-wide .wing,body.screen-wide .wing-el,body.screen-wide .seam{display:block}
+  body.screen-main .wing,body.screen-main .wing-el,body.screen-main .seam{display:block}
   /* wings continue the walls' grey outer edge and lighten towards the ends of the 16 m screen */
   .wing{position:absolute;top:0;bottom:0;width:1300px;pointer-events:none}
-  .wing.l{right:calc(100% + 123px);background:linear-gradient(270deg,#C8C9CE 0%,#DADCE1 25%,#E9EBF1 65%,#E3E6ED 100%)}
-  .wing.r{left:2073px;background:linear-gradient(90deg,#C8C9CE 0%,#DADCE1 25%,#E9EBF1 65%,#E3E6ED 100%)}
+  .wing.l{right:calc(100% + 323px);background:linear-gradient(270deg,#C8C9CE 0%,#DADCE1 25%,#E9EBF1 65%,#E3E6ED 100%)}
+  .wing.r{left:2273px;background:linear-gradient(90deg,#C8C9CE 0%,#DADCE1 25%,#E9EBF1 65%,#E3E6ED 100%)}
   /* feather the walls' grey outer edge into the wing colour so there is no seam */
   .seam{position:absolute;top:0;bottom:0;width:260px;pointer-events:none}
-  .seam.l{left:-125px;background:linear-gradient(90deg,#C8C9CE,rgba(200,201,206,0))}
-  .seam.r{left:1815px;background:linear-gradient(270deg,#C8C9CE,rgba(200,201,206,0))}
+  .seam.l{left:-325px;background:linear-gradient(90deg,#C8C9CE,rgba(200,201,206,0))}
+  .seam.r{left:2015px;background:linear-gradient(270deg,#C8C9CE,rgba(200,201,206,0))}
   .wing-el{position:absolute;filter:drop-shadow(0 22px 26px rgba(63,111,224,.2));animation:bob 7s ease-in-out infinite}
-  .wing-el.a{left:-860px;top:190px;width:150px;animation-delay:-2s}
-  .wing-el.b{left:-520px;bottom:150px;width:160px;animation-delay:-4.5s}
-  .wing-el.c{left:2700px;top:250px;width:140px;animation-delay:-1s}
-  .wing-el.d{left:2660px;bottom:170px;width:160px;animation-delay:-3.5s}
+  /* left zone (core x -700..-110) and right zone (core x 2030..2620) */
+  .wing-el.a{left:-600px;top:110px;width:130px;animation-delay:-2s}
+  .wing-el.b{left:-640px;bottom:240px;width:130px;animation-delay:-4.5s}
+  .wing-el.c{left:2450px;top:290px;width:120px;animation-delay:-1s}
+  body.screen-main .wall.l{left:-325px}
+  body.screen-main .wall.r{left:1559px}
+  body.screen-main .el.candle{left:-430px;top:250px}
+  body.screen-main .el.chest{left:-300px;bottom:90px}
+  body.screen-main .el.gift{right:-380px;top:100px}
+  body.screen-main .ship{right:-470px;height:300px}
+  body.screen-main .el.efin{right:-640px;bottom:70px;width:120px}
   /* ---- KV backdrop: sky seen between two white walls (key visual), layered so each part can move ---- */
   .sky{position:absolute;top:0;left:-6%;width:112%;height:100%;background:url("prize-assets/img/kv-sky.webp") center/cover no-repeat;
     animation:drift 70s ease-in-out infinite alternate}
@@ -118,9 +126,14 @@
   /* B: name wheel. 5 rows visible; the row on the centre band is full size and black, the others shrink and fade with distance */
   .reel{position:relative;width:1240px;height:600px;margin:24px 0 6px;overflow:hidden;
     -webkit-mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent)}
-  .reel-band{position:absolute;left:0;right:0;top:240px;height:120px;border-block:2px solid var(--blue);background:var(--blue-tint)}
+  .reel-band{position:absolute;left:0;right:0;top:calc(50% - 60px);height:120px;border-block:2px solid var(--blue);background:var(--blue-tint)}
   .reel-in{position:absolute;left:0;right:0;top:0;will-change:transform}
   .reel-in div{position:absolute;left:0;right:0;height:120px;line-height:120px;font-size:100px;font-weight:700;white-space:nowrap;color:var(--ink);text-align:center;will-change:transform,opacity}
+  body.screen-main .reel{height:360px;margin-top:14px}
+  /* Main Stage is only 830 tall: drawing A and the prize scene get a little more compact / less lifted */
+  body.screen-main .drawing .deck{width:170px;margin:18px 0 8px}
+  body.screen-main .dv-A .count{font-size:200px;min-height:200px}
+  body.screen-main .prize{padding-bottom:20px}
   .dv-B .count{font-size:120px;min-height:120px}
 
   .count.tick{animation:tick .9s cubic-bezier(.2,.8,.2,1)}
@@ -153,13 +166,10 @@
   .tile > div{min-width:0;flex:1}
   .tile b{display:block;font-size:38px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tile small{display:block;font-size:28px;font-weight:500;color:var(--blue-ink);margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  /* wide screen: plenty of height, so the board sits centred; the candle would peek out between its tiles, so it steps aside */
-  body.screen-wide .scene.board{justify-content:center;padding:0 0 160px}
-  .el.candle{transition:opacity .6s}
-  body.screen-wide #stage[data-scene="board"] .el.candle{opacity:0}
-  /* wider than the 1920 core on purpose: it overflows the core evenly on both sides */
-  body.screen-wide .grid{width:3210px;max-width:none}
-  body.screen-wide .groups{width:2214px}
+  /* Main Stage: the board sits centred in the content zone, 4 columns x 3 rows (wider than the 1920 core, overflowing it evenly) */
+  body.screen-main .scene.board{justify-content:center;padding:0 0 30px}
+  body.screen-main .grid{width:2134px;max-width:none}
+  body.screen-main .groups{width:2134px}
   .board .empty{font-size:46px;font-weight:700;color:var(--ink-2)}
   /* B: same grid, a big order number instead of the character card */
   .tile .rank{flex:none;width:80px;text-align:center;font-size:52px;font-weight:600;line-height:1;color:var(--blue-ink)}
@@ -215,7 +225,6 @@
   <img class="wing-el a" src="prize-assets/img/diamond-icon.webp" alt="">
   <img class="wing-el b" src="prize-assets/img/gold-bars.webp" alt="">
   <img class="wing-el c" src="prize-assets/img/coin.webp" alt="">
-  <img class="wing-el d" src="prize-assets/img/gold-bars.webp" alt="">
   <div class="sky"></div>
   <img class="wall l" src="prize-assets/img/kv-wall-l.webp" alt="">
   <img class="wall r" src="prize-assets/img/kv-wall-r.webp" alt="">
@@ -320,8 +329,8 @@
   <button data-board="B">ตาราง B ลำดับ</button>
   <button data-board="C">ตาราง C ตามรางวัล</button>
   <span class="sep"></span>
-  <button data-screen="main" title="S">จอ 5.5×3</button>
-  <button data-screen="wide">จอ 16×4</button>
+  <button data-screen="mini" title="S">Mini Stage 5.5×3</button>
+  <button data-screen="main">Main Stage 16×4</button>
   <span class="sep"></span>
   <button id="demoFs" title="F">เต็มจอ</button>
 </div>
@@ -340,10 +349,10 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":
 
 // size from the layout viewport (clientWidth/Height), not innerWidth: on phones innerWidth follows pinch-zoom
 const SCREENS = {
-  main: { w: 1408, h: 768,  vw: 1920, vh: 1047 },   // 5.5 x 3 m
-  wide: { w: 4096, h: 1024, vw: 4320, vh: 1080 },   // 16 x 4 m
+  mini: { w: 1408, h: 768,  vw: 1920, vh: 1047 },   // Mini Stage 5.5 x 3 m
+  main: { w: 4096, h: 1024, vw: 3320, vh: 830 },    // Main Stage 16 x 4 m
 };
-let screen = "main";
+let screen = "mini";
 function fit(){
   const el = document.documentElement, S = SCREENS[screen];
   // fit the real screen size into the window, then map the virtual canvas onto it
@@ -352,7 +361,8 @@ function fit(){
 }
 function setScreen(x){
   const first = !stage.dataset.sized;
-  screen = SCREENS[x] ? x : "main";
+  if(x === "wide") x = "main";   // older links
+  screen = SCREENS[x] ? x : "mini";
   const S = SCREENS[screen];
   stage.style.width = S.vw + "px"; stage.style.height = S.vh + "px";
   Object.keys(SCREENS).forEach(k => document.body.classList.toggle("screen-" + k, k === screen));
@@ -401,7 +411,7 @@ function setBoard(x){
 // webfonts change text metrics: re-fit the board once they have loaded
 document.fonts?.ready.then(() => { if(lastBoard && stage.dataset.scene === "board") showBoard(lastBoard); });
 
-const ROW = 120, WIN = 600;
+const ROW = 120;
 function startReel(st, dur){
   const names = D.PEOPLE.map(p => nm(p.n));
   for(let i = names.length - 1; i > 0; i--){ const j = Math.floor(rand() * (i + 1)); [names[i], names[j]] = [names[j], names[i]]; }
@@ -410,7 +420,7 @@ function startReel(st, dur){
   rows.push(st.winner ? nm(st.winner.n) : names[0]);
   const inner = $("#reelIn");
   inner.innerHTML = rows.map((n, i) => `<div style="top:${i * ROW}px">${esc(n)}</div>`).join("");
-  const els = [...inner.children];
+  const els = [...inner.children], WIN = inner.parentElement.clientHeight;
   // p = which row sits on the centre band (fractional while rolling); distance d from it drives size and fade
   const set = p => {
     inner.style.transform = `translateY(${(WIN - ROW) / 2 - p * ROW}px)`;
@@ -484,7 +494,9 @@ function fitBoard(){
   const grid = $("#grid"), ship = document.querySelector(".ship");
   grid.style.transform = "";
   const top = grid.offsetTop, h = grid.offsetHeight;
-  const limit = stage.clientHeight - ship.offsetHeight - 30;
+  const g = grid.getBoundingClientRect(), sh = ship.getBoundingClientRect();
+  const overShip = g.left < sh.right && g.right > sh.left;
+  const limit = overShip ? stage.clientHeight - ship.offsetHeight - 30 : stage.clientHeight - 24;
   if(top + h > limit) grid.style.transform = `scale(${Math.max(.5, (limit - top) / h).toFixed(3)})`;
 }
 
@@ -679,7 +691,7 @@ setBoard(params.get("board"));
     else if(k === "[") nextPrize(-1);
     else if(k === "r" || k === "R") redraw();
     else if(k === "v" || k === "V") cycleDraw();
-    else if(k === "s" || k === "S") setScreen(screen === "main" ? "wide" : "main");
+    else if(k === "s" || k === "S") setScreen(screen === "mini" ? "main" : "mini");
     else if(k === "t" || k === "T") setBoard(BOARDS[(BOARDS.indexOf(boardStyle) + 1) % BOARDS.length]);
     else if(k === "h" || k === "H") document.body.classList.toggle("bar-pin");
   });

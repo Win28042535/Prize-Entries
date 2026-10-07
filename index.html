@@ -58,8 +58,8 @@
       <h1>Show Scene</h1>
     </div>
     <nav class="jump" aria-label="ขนาดจอ">
-      <a class="btn" href="#set-main">จอ 5.5×3 ม. · 1408×768</a>
-      <a class="btn" href="#set-wide">จอ 16×4 ม. · 4096×1024</a>
+      <a class="btn" href="#set-main">Main Stage 16×4 ม.</a>
+      <a class="btn" href="#set-mini">Mini Stage 5.5×3 ม.</a>
     </nav>
   </header>
 
@@ -73,7 +73,7 @@
       <div><dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>เปลี่ยนรางวัล</dd></div>
       <div><dt><kbd>R</kbd></dt><dd>สุ่มใหม่</dd></div>
       <div><dt><kbd>V</kbd></dt><dd>สลับสไตล์การสุ่ม A / B</dd></div>
-      <div><dt><kbd>S</kbd></dt><dd>สลับขนาดจอ 5.5×3 / 16×4</dd></div>
+      <div><dt><kbd>S</kbd></dt><dd>สลับจอ Mini Stage / Main Stage</dd></div>
       <div><dt><kbd>T</kbd></dt><dd>สลับแบบตารางผู้ชนะ A / B / C</dd></div>
       <div><dt><kbd>H</kbd></dt><dd>โชว์หรือซ่อนแถบปุ่ม</dd></div>
       <div><dt><kbd>F</kbd></dt><dd>เต็มจอ</dd></div>
@@ -87,8 +87,8 @@
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 // one section per LED screen, each at its real aspect ratio
 const SCREENS = [
-  { id: "main", title: "จอ 5.5 × 3 ม.", size: "1408 × 768 px · 11 : 6", ar: "1408/768", wide: false },
-  { id: "wide", title: "จอ 16 × 4 ม.",  size: "4096 × 1024 px · 4 : 1", ar: "4/1",     wide: true  },
+  { id: "main", title: "Main Stage · 16 × 4 ม.",  size: "4096 × 1024 px · 4 : 1", ar: "4/1",      wide: true  },
+  { id: "mini", title: "Mini Stage · 5.5 × 3 ม.", size: "1408 × 768 px · 11 : 6", ar: "1408/768", wide: false },
 ];
 const card = (set, s) => `<article class="card">
   <a class="thumb" href="show-screen.html?screen=${set.id}&${s.q}" target="_blank" rel="noopener" aria-label="เปิด ${esc(s.title)}">
@@ -109,8 +109,8 @@ document.getElementById("sets").innerHTML = SCREENS.map(set => `<section class="
   <h3>สถานการณ์ทดสอบ<small>เช็กว่าข้อความและตารางรับข้อมูลจริงได้</small></h3>
   <div class="grid">${window.SCENES.filter(s => s.group === "case").map(s => card(set, s)).join("")}</div>
 </section>`).join("");
-// #wide (older links) jumps to the 16 x 4 m section
-if(location.hash === "#wide") document.getElementById("set-wide").scrollIntoView();
+// #wide (older links) jumps to the Main Stage section
+if(location.hash === "#wide") document.getElementById("set-main").scrollIntoView();
 </script>
 </body>
 </html>
