@@ -1,7 +1,6 @@
-// Shared sample data + channel for the Control Panel and Show Screen mockups.
+// Sample data for the Show Screen: tickets, prizes, Investor DNA characters and participants.
 // Names are fictional placeholders, not real participants.
 window.PRIZE_DATA = {
-  CHANNEL: "bt2026-prize-show",
   TICKETS: ["บัตร Ultimate 1 วัน", "บัตร Ultimate 2 วัน"],
   PRIZES: [
     { name: "ตั๋วเครื่องบิน", qty: 3 },

@@ -21,7 +21,7 @@
     --sans:"FC Minimal",system-ui,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;background:#0B0D14;overflow:hidden;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
+  html,body{height:100%;background:#000;overflow:hidden;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
 
   /* fixed 1920x1080 canvas, scaled to the window (letterboxed) */
   /* the 1920px stage lives in a clipping, viewport-sized box so it never makes the page wider than the screen */
@@ -128,7 +128,7 @@
 
   /* reveal */
   /* reveal: one centred column, no character card */
-  .who{width:1500px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .who{width:1400px;display:flex;flex-direction:column;align-items:center;text-align:center}
   .who .crown{width:92px;height:92px;display:block;filter:drop-shadow(0 10px 16px rgba(63,111,224,.3))}
   .lucky{margin-top:10px;font-size:36px;color:var(--ink-2);display:flex;align-items:center;gap:14px}
   .lucky i{font-style:normal;font-size:22px;color:var(--ink)}
@@ -168,6 +168,9 @@
   .demo-bar button:hover{background:rgba(255,255,255,.12)}
   .demo-bar button[aria-pressed="true"]{background:#fff;color:var(--ink)}
   .demo-bar .sep{width:1px;height:20px;background:rgba(255,255,255,.25);margin:0 4px}
+
+  /* ?still: every scene in its settled state, no motion (gallery thumbnails and PNG export) */
+  body.still *,body.still *::before,body.still *::after{animation:none!important;transition:none!important}
 
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
 </style>
@@ -290,6 +293,10 @@ const D = window.PRIZE_DATA;
 const $ = s => document.querySelector(s);
 const stage = $("#stage");
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const params = new URLSearchParams(location.search);
+const STILL = params.has("still");
+if(STILL) document.body.classList.add("still");
+const rand = STILL ? (() => { let x = 7; return () => (x = (x * 9301 + 49297) % 233280) / 233280; })() : Math.random;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 // size from the layout viewport (clientWidth/Height), not innerWidth: on phones innerWidth follows pinch-zoom
@@ -328,13 +335,14 @@ function setDraw(x){
 const ROW = 180;
 function startReel(st, dur){
   const names = D.PEOPLE.map(p => nm(p.n));
-  for(let i = names.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [names[i], names[j]] = [names[j], names[i]]; }
+  for(let i = names.length - 1; i > 0; i--){ const j = Math.floor(rand() * (i + 1)); [names[i], names[j]] = [names[j], names[i]]; }
   const N = 40, rows = [];
   for(let i = 0; i < N - 1; i++) rows.push(names[i % names.length]);
   rows.push(st.winner ? nm(st.winner.n) : names[0]);
   const inner = $("#reelIn");
   inner.innerHTML = rows.map(n => `<div>${esc(n)}</div>`).join("");
   const set = e => inner.style.transform = `translateY(${ROW - (1 + (N - 2) * e) * ROW}px)`;
+  if(STILL){ set((N - 7) / (N - 2)); return; }
   set(0);
   const t0 = performance.now(), len = Math.max(600, dur - 250);
   const step = now => {
@@ -368,6 +376,7 @@ function showDrawing(st, done){
   const secs = Math.max(1, st.countdown || 5), els = document.querySelectorAll(".count"), orb = $("#orb");
   orb.classList.remove("fast", "burst");
   if(drawStyle === "B") startReel(st, secs * 1000);
+  if(STILL){ els.forEach(el => el.textContent = Math.min(3, secs)); return; }
   if(drawStyle === "C"){
     later(() => orb.classList.add("fast"), Math.max(0, (secs - 2) * 1000));
     later(() => orb.classList.add("burst"), secs * 1000 - 200);
@@ -416,14 +425,14 @@ function apply(st, instant){
   switch(st.scene){
     case "prize": showPrize(st); break;
     case "drawing":
-      if(instant){ showReveal(st, true); break; }
+      if(instant && !STILL){ showReveal(st, true); break; }
       if(st.redraw){
         go("redraw");
         $("#rSub").textContent = `${st.prize.name} · ผู้มีสิทธิ์ ${st.pool.count} คน`;
         later(() => showDrawing(st, () => showReveal(st)), 1800);
       } else showDrawing(st, () => showReveal(st));
       break;
-    case "reveal": showReveal(st, instant); break;
+    case "reveal": showReveal(st, instant || STILL); break;
     case "board": showBoard(st); break;
     default: go("idle");
   }
@@ -472,32 +481,41 @@ function tick(){
   raf = parts.length || emitting ? requestAnimationFrame(tick) : 0;
 }
 
-const params = new URLSearchParams(location.search);
-
 setDraw(params.get("draw"));
 
-if(!params.has("live") && !params.has("preview")){
-  // ---- standalone: staff drive the scenes by hand (keys / bar / ?scene=), no Control Panel needed.
-  //      ?demo adds an auto-playing loop. ?live or ?preview joins the Control Panel instead. ----
-  const auto = params.has("demo");
-  document.body.classList.add("is-demo");
+// ---- controller: staff drive the scenes by hand (keys / bar / ?scene=). ?demo auto-plays a loop.
+//      Preview params: ?still (settled frame, no motion), ?case=long|nosurname, ?n=0..12 winners on the board ----
+{
+  const auto = params.has("demo") && !STILL;
+  if(!STILL) document.body.classList.add("is-demo");
   if(auto) document.body.classList.add("is-auto");
-  if(params.has("bar")) document.body.classList.add("bar-pin");
+  if(params.has("bar") && !STILL) document.body.classList.add("bar-pin");
   const STEPS = [["idle", 4000], ["prize", 5000], ["drawing", 13000], ["board", 6000]];
   let seq = 1000, prizeIdx = Math.max(0, Math.min(D.PRIZES.length - 1, (+params.get("prize") || 1) - 1)),
       winner = null, list = [], step = 0, loop = 0, rounds = 0, paused = !auto, redrawFlag = false;
 
-  const pickWinner = () => {
+  // test cases for checking how the text holds up
+  const kase = params.get("case");
+  const LONG = "ณัฐพงศ์ศักดิ์ศรี เจริญรุ่งเรืองวงศ์ตระกูล";
+  const pickWinner = (useCase = true) => {
     const won = new Set(list.map(w => w.id));
     let pool = D.PEOPLE.filter(p => !won.has(p.id));
     if(!pool.length){ list = []; pool = D.PEOPLE.slice(); }
     const p = D.PRIZES[prizeIdx];
     let no = list.filter(w => w.prize === p.name).length + 1;
     if(no > p.qty){ list = list.filter(w => w.prize !== p.name); no = 1; }   // prize used up: start its numbering again
-    const x = pool[Math.floor(Math.random() * pool.length)];
+    let x = pool[Math.floor(rand() * pool.length)];
+    if(useCase && kase === "nosurname") x = D.PEOPLE.find(q => /\s-\s*$/.test(q.n)) || x;
+    if(useCase && kase === "long") x = { ...x, n: LONG };
     winner = { id: x.id, n: x.n, t: x.t, c: x.c, no };
     list.push({ ...winner, prize: p.name });
   };
+  // ?n= fills the board with that many earlier winners (still frames default to 6)
+  const n = Math.max(0, Math.min(12, params.has("n") ? +params.get("n") || 0 : STILL ? 6 : 0));
+  const keepPrize = prizeIdx;
+  for(let i = 0; i < n; i++){ prizeIdx = i % D.PRIZES.length; pickWinner(i === 0); }
+  prizeIdx = keepPrize;
+
   const state = scene => {
     const p = D.PRIZES[prizeIdx], used = list.filter(w => w.prize === p.name).length;
     return {
@@ -523,7 +541,7 @@ if(!params.has("live") && !params.has("preview")){
       step = 2; schedule(8000);
       return;
     }
-    run(STEPS.findIndex(s => s[0] === scene), true);
+    run(Math.max(0, STEPS.findIndex(s => s[0] === scene)), true);
   };
   window.demoJump = jump;
 
@@ -538,7 +556,7 @@ if(!params.has("live") && !params.has("preview")){
   let cur = 0;
   const goto = i => { cur = (i + SEQ.length) % SEQ.length; jump(SEQ[cur]); };
 
-  addEventListener("keydown", e => {
+  if(!STILL) addEventListener("keydown", e => {
     if(e.ctrlKey || e.metaKey || e.altKey) return;
     const k = e.key;
     if("12345".includes(k) && k.length === 1) { jump(["idle","prize","drawing","reveal","board"][+k - 1]); cur = Math.max(0, SEQ.indexOf(["idle","prize","drawing","drawing","board"][+k - 1])); }
@@ -566,22 +584,9 @@ if(!params.has("live") && !params.has("preview")){
     if(e.target.closest("#redrawBtn")) redraw();
     if(e.target.closest("#demoFs")) toggleFs();
   });
-  wake();
+  if(!STILL) wake();
   const first = params.get("scene") || "idle";
   if(auto) run(0); else { jump(first); cur = Math.max(0, SEQ.indexOf(first === "reveal" ? "drawing" : first)); }
-} else {
-  // ---- live: sync with the Control Panel ----
-  const ch = new BroadcastChannel(D.CHANNEL);
-  let first = true;
-  ch.onmessage = e => {
-    if(e.data?.t !== "state") return;
-    apply(e.data.state, first && e.data.replay);  // a reply to "hello" jumps to the end state
-    first = false;
-  };
-  const preview = params.has("preview");
-  ch.postMessage({ t: "hello", preview });
-  addEventListener("pagehide", () => ch.postMessage({ t: "bye", preview }));
-  go("idle");
 }
 </script>
 </body>
