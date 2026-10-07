@@ -45,17 +45,26 @@
   .seam.l{left:-325px;background:linear-gradient(90deg,#C8C9CE,rgba(200,201,206,0))}
   .seam.r{left:2015px;background:linear-gradient(270deg,#C8C9CE,rgba(200,201,206,0))}
   .wing-el{position:absolute;filter:drop-shadow(0 22px 26px rgba(63,111,224,.2));animation:bob 7s ease-in-out infinite}
-  /* left zone (core x -700..-110) and right zone (core x 2030..2620) */
-  .wing-el.a{left:-600px;top:110px;width:130px;animation-delay:-2s}
+  /* Main Stage pieces in three depth layers, from the wings in to the sky around the content:
+       far   (wings, small)            gold bars b, compass c
+       mid   (straddling the wall edge) candle, chest, ship
+       near  (in the sky, clear of text) diamond n1, coin n2, gift, efin */
   .wing-el.b{left:-640px;bottom:240px;width:130px;animation-delay:-4.5s}
-  .wing-el.c{left:2450px;top:290px;width:120px;animation-delay:-1s}
+  .wing-el.c{left:2440px;top:140px;width:110px;animation-delay:-1s}
+  .wing-el.n1{left:340px;top:120px;width:120px;animation-delay:-3s}
+  .wing-el.n2{left:1825px;top:360px;width:110px;animation-delay:-5.5s}   /* between the name's right edge (~1560) and the ship (~2044), a little nearer the ship */
+  /* the logo row follows the edges of the whole 4:1 screen (same 96px margin as Mini Stage), not the 1920 core */
+  body.screen-main .top{left:-604px;right:-604px}
   body.screen-main .wall.l{left:-325px}
   body.screen-main .wall.r{left:1559px}
-  body.screen-main .el.candle{left:-430px;top:250px}
-  body.screen-main .el.chest{left:-300px;bottom:90px}
-  body.screen-main .el.gift{right:-380px;top:100px}
-  body.screen-main .ship{right:-470px;height:300px}
-  body.screen-main .el.efin{right:-640px;bottom:70px;width:120px}
+  body.screen-main .el.candle{left:-200px;top:200px}   /* bar centred between the far gold bars (~-510) and the name's left edge (~360) */
+  body.screen-main .el.chest{left:77px;bottom:70px}   /* centred between the bar chart (~-75) and the near diamond (~400) */
+  body.screen-main .el.gift{right:auto;left:1560px;top:60px;width:170px}
+  body.screen-main .ship{right:-430px;height:300px}   /* just outside the 4-column board so it never has to shrink */
+  body.screen-main .el.efin{right:auto;bottom:auto;left:1680px;top:640px;width:120px}
+  /* the 4-column board fills the sky, so the mid and near pieces step aside there (far pieces and the ship stay) */
+  .el,.wing-el{transition:opacity .6s}
+  body.screen-main #stage[data-scene="board"] :is(.el.candle,.el.chest,.el.gift,.el.efin,.wing-el.n1,.wing-el.n2){opacity:0}
   /* ---- KV backdrop: sky seen between two white walls (key visual), layered so each part can move ---- */
   .sky{position:absolute;top:0;left:-6%;width:112%;height:100%;background:url("prize-assets/img/kv-sky.webp") center/cover no-repeat;
     animation:drift 70s ease-in-out infinite alternate}
@@ -129,7 +138,8 @@
   .reel-band{position:absolute;left:0;right:0;top:calc(50% - 60px);height:120px;border-block:2px solid var(--blue);background:var(--blue-tint)}
   .reel-in{position:absolute;left:0;right:0;top:0;will-change:transform}
   .reel-in div{position:absolute;left:0;right:0;height:120px;line-height:120px;font-size:100px;font-weight:700;white-space:nowrap;color:var(--ink);text-align:center;will-change:transform,opacity}
-  body.screen-main .reel{height:360px;margin-top:14px}
+  body.screen-main .reel{height:360px;margin-top:14px;width:1000px}
+  body.screen-main .who{width:1200px}   /* long names shrink a little sooner, keeping clear of the near pieces */
   /* Main Stage is only 830 tall: drawing A and the prize scene get a little more compact / less lifted */
   body.screen-main .drawing .deck{width:170px;margin:18px 0 8px}
   body.screen-main .dv-A .count{font-size:200px;min-height:200px}
@@ -223,9 +233,8 @@
 <div id="stage">
 <div id="core">
   <div class="wing l"></div><div class="wing r"></div>
-  <img class="wing-el a" src="prize-assets/img/diamond-icon.webp" alt="">
   <img class="wing-el b" src="prize-assets/img/gold-bars.webp" alt="">
-  <img class="wing-el c" src="prize-assets/img/coin.webp" alt="">
+  <img class="wing-el c" src="prize-assets/img/compass.webp" alt="">
   <div class="sky"></div>
   <img class="wall l" src="prize-assets/img/kv-wall-l.webp" alt="">
   <img class="wall r" src="prize-assets/img/kv-wall-r.webp" alt="">
@@ -238,6 +247,8 @@
   <img class="el candle" src="prize-assets/img/candle.png" alt="">
   <img class="el chest" src="prize-assets/img/chest.webp" alt="">
   <img class="el gift" src="prize-assets/img/gift.webp" alt="">
+  <img class="wing-el n1" src="prize-assets/img/diamond-icon.webp" alt="">
+  <img class="wing-el n2" src="prize-assets/img/coin.webp" alt="">
 
   <div class="top">
     <img src="prize-assets/img/efinBT.png" alt="efin | BetterTrade">
