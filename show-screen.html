@@ -168,23 +168,23 @@
 
   /* board */
   /* the ship keeps one size and place everywhere, so the board is compact and top-anchored: its grid ends above the ship's top (fitBoard checks it) */
-  .scene.board{justify-content:flex-start;padding-top:124px}
-  .board h2{font-size:110px;margin:6px 0 14px}
+  /* the block is centred in the free band between the logo row and the ship (padding set by fitBoard) */
+  .scene.board{justify-content:center;padding:118px 0 24px}
+  .board h2{font-size:100px;margin:4px 0 10px}
   /* 3 columns x up to 4 rows (12 winners); names and prizes are sized for reading from far away */
-  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 18px;max-width:1596px;transform-origin:top center}
-  .tile{width:520px;display:flex;gap:16px;align-items:center;text-align:left;padding:10px 12px;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;max-width:1596px;transform-origin:top center}
+  .tile{width:520px;display:flex;gap:16px;align-items:center;text-align:left;padding:6px 12px;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
   .tile img{width:56px;aspect-ratio:1418/1985;border-radius:8px;flex:none;object-fit:cover}
   .tile > div{min-width:0;flex:1}
   .tile b{display:block;font-size:38px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tile small{display:block;font-size:28px;font-weight:500;color:var(--blue-ink);margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* Main Stage: the board sits centred in the content zone, 4 columns x 3 rows (wider than the 1920 core, overflowing it evenly) */
-  body.screen-main .scene.board{justify-content:center;padding:0 0 30px}
   body.screen-main .grid{width:2134px;max-width:none}
   body.screen-main .groups{width:2134px}
   .board .empty{font-size:46px;font-weight:700;color:var(--ink-2)}
   /* B: same grid, a big order number instead of the character card */
   .tile .rank{flex:none;width:80px;text-align:center;font-size:52px;font-weight:600;line-height:1;color:var(--blue-ink)}
-  .grid.ranked .tile{padding:10px 18px 10px 8px}
+  .grid.ranked .tile{padding:6px 18px 6px 8px}
   .grid.ranked .tile b{font-size:44px;font-weight:700}
   /* C: one glass column per prize, winners listed under the prize name */
   .groups{display:flex;gap:18px;justify-content:center;align-items:flex-start;width:1596px}
@@ -505,10 +505,14 @@ function showReveal(st, instant){
 function fitBoard(){
   const grid = $("#grid"), ship = document.querySelector(".ship");
   grid.style.transform = "";
-  const top = grid.offsetTop, h = grid.offsetHeight;
   const g = grid.getBoundingClientRect(), sh = ship.getBoundingClientRect();
   const overShip = g.left < sh.right && g.right > sh.left;
-  const limit = overShip ? stage.clientHeight - ship.offsetHeight - 30 : stage.clientHeight - 24;
+  const scene = grid.closest(".scene");
+  // free band: below the logo row, down to the ship's top (only where the board is over the ship) or the screen's bottom margin
+  const bandBottom = overShip ? stage.clientHeight - ship.offsetHeight - 24 : stage.clientHeight - 24;
+  scene.style.padding = `118px 0 ${stage.clientHeight - bandBottom}px`;
+  const top = grid.offsetTop, h = grid.offsetHeight;
+  const limit = bandBottom - 6;
   if(top + h > limit) grid.style.transform = `scale(${Math.max(.5, (limit - top) / h).toFixed(3)})`;
 }
 
