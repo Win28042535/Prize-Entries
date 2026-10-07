@@ -42,13 +42,16 @@
   .floor{position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))}
 
   /* the ship is the gimmick: bottom-right, same size and place in every scene, behind all content */
-  .ship{position:absolute;right:28px;bottom:0;height:400px;filter:drop-shadow(0 20px 40px rgba(17,19,24,.18))}
+  .ship{position:absolute;right:28px;bottom:0;height:280px;filter:drop-shadow(0 20px 40px rgba(17,19,24,.18))}
 
   /* glass elements stay at the edges so the centre is free for names; the ship carries its own set */
   .el{position:absolute;filter:drop-shadow(0 26px 30px rgba(63,111,224,.22));animation:bob 6s ease-in-out infinite}
   .el.candle{left:60px;top:300px;width:250px;animation-delay:-1s}
-  .el.gold{left:250px;bottom:120px;width:150px;animation-delay:-3s}
-  .el.gem{right:150px;top:150px;width:150px;animation-delay:-1.5s}
+  .el.chest{left:240px;bottom:112px;width:170px;animation-delay:-3s}
+  .el.efin{right:356px;bottom:64px;width:124px;animation-delay:-2s}
+  .el.gift{right:138px;top:128px;width:190px;animation-delay:-1.5s;transition:opacity .6s}
+  /* the prize scene has its own big gift above the title, so the wall one steps aside there */
+  #stage[data-scene="prize"] .el.gift{opacity:0}
   @keyframes bob{50%{transform:translateY(-18px) rotate(-3deg)}}
 
   .top{position:absolute;left:96px;right:96px;top:64px;display:flex;justify-content:space-between;align-items:center;z-index:5}
@@ -68,8 +71,8 @@
   /* the headline leads; the event logo is the supporting identity (64% of its old width) */
   .idle img{width:480px;filter:drop-shadow(0 16px 32px rgba(17,19,24,.16))}
   .idle .k{margin-top:40px}
-  .idle h2{margin:18px 0 6px}
-  .idle p{margin-top:10px;font-size:34px;color:var(--ink-2)}
+  .idle h2{margin:18px 0 6px;font-size:170px;font-weight:700}
+  .idle p{margin-top:12px;font-size:46px;font-weight:700;color:var(--ink-2)}
 
   /* prize */
   .prize h2,.idle h2,.board h2{font-weight:600;font-size:150px;line-height:1.05;letter-spacing:-.01em}
@@ -94,19 +97,18 @@
   .dv{display:none;flex-direction:column;align-items:center}
   body.draw-A .dv-A,body.draw-B .dv-B{display:flex}
 
-  /* B: name reel, 3 visible rows, the centre row is the pick */
-  .reel{position:relative;width:1240px;height:540px;margin:34px 0 10px;overflow:hidden;
-    -webkit-mask-image:linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent);mask-image:linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent)}
-  .reel-band{position:absolute;left:0;right:0;top:180px;height:180px;border-block:2px solid var(--blue);background:var(--blue-tint)}
+  /* B: name wheel. 5 rows visible; the row on the centre band is full size and black, the others shrink and fade with distance */
+  .reel{position:relative;width:1240px;height:600px;margin:24px 0 6px;overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent)}
+  .reel-band{position:absolute;left:0;right:0;top:240px;height:120px;border-block:2px solid var(--blue);background:var(--blue-tint)}
   .reel-in{position:absolute;left:0;right:0;top:0;will-change:transform}
-  .reel-in div{height:180px;line-height:180px;font-size:112px;font-weight:600;white-space:nowrap;color:var(--ink-3);opacity:.55}
-  .reel-in div.hit{color:var(--ink);opacity:1}
-  /* A: prize pieces flank the shuffling deck (outside its +-120px sweep) */
-  .flank{position:absolute;top:210px;width:170px;height:170px;filter:drop-shadow(0 18px 22px rgba(63,111,224,.25));animation:bob 6s ease-in-out infinite}
-  .flank.l{left:calc(50% - 480px)}
-  .flank.r{left:calc(50% + 310px);animation-delay:-3s}
+  .reel-in div{position:absolute;left:0;right:0;height:120px;line-height:120px;font-size:100px;font-weight:700;white-space:nowrap;color:var(--ink);text-align:center;will-change:transform,opacity}
+  /* A: a gift box on each side of the shuffling deck (outside its +-120px sweep), tilted apart */
   .dv-A{position:relative}
-  .dv-B .count{font-size:140px;min-height:140px}
+  .flank{position:absolute;top:210px;width:170px;height:170px;filter:drop-shadow(0 18px 22px rgba(63,111,224,.25));animation:bob 6s ease-in-out infinite}
+  .flank.l{left:calc(50% - 480px);rotate:-8deg}
+  .flank.r{left:calc(50% + 310px);animation-delay:-3s;rotate:8deg}
+  .dv-B .count{font-size:120px;min-height:120px}
 
   .count.tick{animation:tick .9s cubic-bezier(.2,.8,.2,1)}
   @keyframes tick{from{transform:scale(1.35);opacity:0;color:var(--blue-ink)}to{transform:none;opacity:1}}
@@ -117,21 +119,14 @@
   .redraw p{font-size:34px;color:var(--ink-2);margin-top:16px}
 
   /* reveal */
-  .drop{position:absolute;opacity:0;transform:scale(.4) translateY(36px);
-    transition:opacity .6s ease calc(var(--d) * 1s),transform .9s cubic-bezier(.2,1.3,.3,1) calc(var(--d) * 1s)}
-  .scene.on .drop{opacity:1;transform:rotate(var(--r,0deg))}
-  .drop img{display:block;width:100%;filter:drop-shadow(0 16px 20px rgba(63,111,224,.25));animation:bob 5.5s ease-in-out infinite;animation-delay:calc(var(--d) * -4s)}
   /* reveal: one centred column, no character card */
   .who{width:1400px;display:flex;flex-direction:column;align-items:center;text-align:center}
-  .crownrow{position:relative;width:92px;height:92px}
-  .crownrow .drop.l{right:calc(100% + 56px);top:-30px;width:156px}
-  .crownrow .drop.r{left:calc(100% + 56px);top:-24px;width:150px}
   .who .crown{width:92px;height:92px;display:block;filter:drop-shadow(0 10px 16px rgba(63,111,224,.3))}
   .lucky{margin-top:10px;font-size:36px;color:var(--ink-2);display:flex;align-items:center;gap:14px}
   .lucky i{font-style:normal;font-size:22px;color:var(--ink)}
   /* font size is fitted to the width in JS so long names stay on one line */
   .who h1{font-weight:600;font-size:170px;line-height:1.15;margin:6px 0 0;letter-spacing:-.01em;white-space:nowrap}
-  .who .pline{margin-top:18px;font-size:84px;font-weight:600;line-height:1.15;color:var(--blue-ink)}
+  .who .pline{margin-top:18px;font-size:120px;font-weight:700;line-height:1.15;color:var(--blue-ink)}
   .who .meta{margin-top:24px;font-size:28px;color:var(--ink-3)}
 
   /* board */
@@ -144,6 +139,22 @@
   .tile b{display:block;font-size:40px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tile small{display:block;font-size:30px;font-weight:500;color:var(--blue-ink);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .board .empty{font-size:34px;color:var(--ink-3)}
+  /* B: same grid, a big order number instead of the character card */
+  .tile .rank{flex:none;width:84px;text-align:center;font-size:58px;font-weight:600;line-height:1;color:var(--blue-ink)}
+  .grid.ranked .tile{padding:16px 18px 16px 10px}
+  .grid.ranked .tile b{font-size:46px;font-weight:700}
+  /* C: one glass column per prize, winners listed under the prize name */
+  .groups{display:flex;gap:18px;justify-content:center;align-items:flex-start;width:1656px}
+  .group{flex:1 1 0;min-width:0;max-width:540px;text-align:left;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  .group header{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .group header img{width:52px;height:52px;flex:none}
+  .group header div{min-width:0}
+  .group header b{display:block;font-size:34px;font-weight:700;line-height:1.2;color:var(--blue-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .group header small{display:block;font-size:22px;color:var(--ink-2)}
+  .group ol{list-style:none;padding:8px 20px 14px}
+  .group li{display:flex;align-items:baseline;gap:14px;padding:6px 0}
+  .group li i{flex:none;width:58px;font-style:normal;font-size:24px;font-weight:500;color:var(--blue-ink)}
+  .group li b{min-width:0;flex:1;font-size:36px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   #confetti{position:absolute;inset:0;z-index:3;pointer-events:none}
   .guide{position:absolute;inset:54px 96px;border:2px dashed rgba(229,59,216,.7);z-index:9;display:none;pointer-events:none}
@@ -181,10 +192,11 @@
   <div class="floor"></div>
   <div class="halo"></div>
   <img class="ship" src="prize-assets/img/kv-ship.webp" alt="">
+  <img class="el efin" src="prize-assets/img/efin-symbol.webp" alt="">
 
   <img class="el candle" src="prize-assets/img/candle.png" alt="">
-  <img class="el gold" src="prize-assets/img/gold.png" alt="">
-  <img class="el gem" src="prize-assets/img/diamond-icon.webp" alt="">
+  <img class="el chest" src="prize-assets/img/chest.webp" alt="">
+  <img class="el gift" src="prize-assets/img/gift.webp" alt="">
 
   <div class="top">
     <img src="prize-assets/img/efinBT.png" alt="efin | BetterTrade">
@@ -214,8 +226,8 @@
 
     <!-- A: shuffling deck of back cards -->
     <div class="dv dv-A">
-      <img class="flank l" src="prize-assets/img/chest.webp" alt="">
-      <img class="flank r" src="prize-assets/img/gold-bars.webp" alt="">
+      <img class="flank l" src="prize-assets/img/gift.webp" alt="">
+      <img class="flank r" src="prize-assets/img/gift.webp" alt="">
       <div class="deck">
         <img src="prize-assets/cards/back.webp" alt="" style="--i:0">
         <img src="prize-assets/cards/back.webp" alt="" style="--i:1">
@@ -241,12 +253,7 @@
 
   <section class="scene reveal" data-scene="reveal">
     <div class="who">
-      <!-- gift and chest hang off the crown as a mirrored pair, so they move with it when a long name resizes the block -->
-      <div class="crownrow">
-        <span class="drop l" style="--d:.5;--r:-9deg"><img src="prize-assets/img/gift.webp" alt=""></span>
-        <img class="crown" src="prize-assets/img/ICON_CROWN_PNG.png" alt="">
-        <span class="drop r" style="--d:.7;--r:9deg"><img src="prize-assets/img/chest.webp" alt=""></span>
-      </div>
+      <img class="crown" src="prize-assets/img/ICON_CROWN_PNG.png" alt="">
       <div class="lucky"><i>✦</i>ผู้โชคดี<i>✦</i></div>
       <h1 id="wName"></h1>
       <div class="pline" id="wLine"></div>
@@ -279,6 +286,10 @@
   <span class="sep"></span>
   <button data-draw="A" title="V">สุ่ม A ไพ่</button>
   <button data-draw="B">สุ่ม B รายชื่อ</button>
+  <span class="sep"></span>
+  <button data-board="A" title="T">ตาราง A การ์ด</button>
+  <button data-board="B">ตาราง B ลำดับ</button>
+  <button data-board="C">ตาราง C ตามรางวัล</button>
   <span class="sep"></span>
   <button id="demoFs" title="F">เต็มจอ</button>
 </div>
@@ -328,7 +339,16 @@ function setDraw(x){
   document.querySelectorAll("#demoBar [data-draw]").forEach(b => b.setAttribute("aria-pressed", b.dataset.draw === drawStyle));
 }
 
-const ROW = 180;
+// ---- winners board style: A character cards / B order numbers / C grouped by prize (T cycles, ?board=B picks) ----
+const BOARDS = ["A", "B", "C"];
+let boardStyle = "A", lastBoard = null;
+function setBoard(x){
+  boardStyle = BOARDS.includes(x) ? x : "A";
+  document.querySelectorAll("#demoBar [data-board]").forEach(b => b.setAttribute("aria-pressed", b.dataset.board === boardStyle));
+  if(lastBoard && stage.dataset.scene === "board") showBoard(lastBoard);
+}
+
+const ROW = 120, WIN = 600;
 function startReel(st, dur){
   const names = D.PEOPLE.map(p => nm(p.n));
   for(let i = names.length - 1; i > 0; i--){ const j = Math.floor(rand() * (i + 1)); [names[i], names[j]] = [names[j], names[i]]; }
@@ -336,15 +356,24 @@ function startReel(st, dur){
   for(let i = 0; i < N - 1; i++) rows.push(names[i % names.length]);
   rows.push(st.winner ? nm(st.winner.n) : names[0]);
   const inner = $("#reelIn");
-  inner.innerHTML = rows.map(n => `<div>${esc(n)}</div>`).join("");
-  const set = e => inner.style.transform = `translateY(${ROW - (1 + (N - 2) * e) * ROW}px)`;
-  if(STILL){ set((N - 7) / (N - 2)); return; }
-  set(0);
+  inner.innerHTML = rows.map((n, i) => `<div style="top:${i * ROW}px">${esc(n)}</div>`).join("");
+  const els = [...inner.children];
+  // p = which row sits on the centre band (fractional while rolling); distance d from it drives size and fade
+  const set = p => {
+    inner.style.transform = `translateY(${(WIN - ROW) / 2 - p * ROW}px)`;
+    els.forEach((el, i) => {
+      const d = Math.abs(i - p);
+      el.style.transform = `scale(${1 / (1 + .62 * d)})`;
+      el.style.opacity = d > 2.6 ? 0 : 1 / (1 + 1.1 * d);
+    });
+  };
+  if(STILL){ set(N - 6); return; }
+  set(1);
   const t0 = performance.now(), len = Math.max(600, dur - 250);
   const step = now => {
     const k = Math.min(1, (now - t0) / len);
-    set(1 - Math.pow(1 - k, 4));
-    if(k < 1) reelRaf = requestAnimationFrame(step); else inner.lastElementChild.classList.add("hit");
+    set(1 + (N - 2) * (1 - Math.pow(1 - k, 4)));
+    if(k < 1) reelRaf = requestAnimationFrame(step);
   };
   reelRaf = requestAnimationFrame(step);
 }
@@ -391,20 +420,49 @@ function showReveal(st, instant){
   h1.style.fontSize = "";
   const max = h1.parentElement.clientWidth;
   if(h1.scrollWidth > max) h1.style.fontSize = `${Math.floor(170 * max / h1.scrollWidth)}px`;
+  // the prize stays prominent but never outgrows the winner name: at most 85% of its size
+  const nameSize = parseFloat(getComputedStyle(h1).fontSize);
+  $("#wLine").style.fontSize = `${Math.min(120, Math.floor(nameSize * .85))}px`;
   if(!instant) later(confetti, 300);
 }
 
 function showBoard(st){
-  const list = st.winners.slice(-12);
-  $("#grid").className = list.length ? "grid" : "";
-  $("#grid").innerHTML = list.length ? list.map(w => `<div class="tile">
-      <img src="prize-assets/cards/${w.c || "back"}.webp" alt="">
-      <div><b>${esc(nm(w.n))}</b><small>${esc(w.prize)} ที่ ${w.no}</small></div></div>`).join("")
-    : `<p class="empty">ยังไม่มีผู้ได้รับรางวัล</p>`;
+  lastBoard = st;
+  const list = st.winners.slice(-12), grid = $("#grid");
+  const label = w => `${esc(w.prize)} ที่ ${w.no}`;
+  if(!list.length){
+    grid.className = "";
+    grid.innerHTML = `<p class="empty">ยังไม่มีผู้ได้รับรางวัล</p>`;
+  } else if(boardStyle === "C"){
+    // group by prize in the order prizes were first drawn; keep the latest 4 groups
+    const groups = [];
+    for(const w of list){
+      let g = groups.find(x => x.prize === w.prize);
+      if(!g) groups.push(g = { prize: w.prize, people: [] });
+      g.people.push(w);
+    }
+    grid.className = "groups";
+    grid.innerHTML = groups.slice(-4).map(g => {
+      const qty = (D.PRIZES.find(p => p.name === g.prize) || {}).qty;
+      return `<section class="group"><header><img src="prize-assets/img/gift.webp" alt="">
+        <div><b>${esc(g.prize)}</b><small>ผู้โชคดี ${g.people.length}${qty ? ` จาก ${qty}` : ""} รางวัล</small></div></header>
+        <ol>${g.people.map(w => `<li><i>ที่ ${w.no}</i><b>${esc(nm(w.n))}</b></li>`).join("")}</ol></section>`;
+    }).join("");
+  } else {
+    grid.className = boardStyle === "B" ? "grid ranked" : "grid";
+    const first = st.winners.length - list.length;
+    grid.innerHTML = list.map((w, i) => `<div class="tile">
+      ${boardStyle === "B" ? `<span class="rank">${String(first + i + 1).padStart(2, "0")}</span>` : `<img src="prize-assets/cards/${w.c || "back"}.webp" alt="">`}
+      <div><b>${esc(nm(w.n))}</b><small>${label(w)}</small></div></div>`).join("");
+  }
   go("board");
-  document.querySelectorAll("#grid .tile b").forEach(b => {
-    b.style.fontSize = "";
-    if(b.scrollWidth > b.clientWidth) b.style.fontSize = Math.max(26, Math.floor(40 * b.clientWidth / b.scrollWidth)) + "px";
+  // long names shrink to fit (down to 26px), then ellipsis
+  grid.querySelectorAll("b").forEach(el => {
+    el.style.fontSize = "";
+    if(el.scrollWidth > el.clientWidth){
+      const base = parseFloat(getComputedStyle(el).fontSize);
+      el.style.fontSize = Math.max(26, Math.floor(base * el.clientWidth / el.scrollWidth)) + "px";
+    }
   });
 }
 
@@ -473,6 +531,7 @@ function tick(){
 }
 
 setDraw(params.get("draw"));
+setBoard(params.get("board"));
 
 // ---- controller: staff drive the scenes by hand (keys / bar / ?scene=). ?demo auto-plays a loop.
 //      Preview params: ?still (settled frame, no motion), ?case=long|nosurname, ?n=0..12 winners on the board ----
@@ -557,6 +616,7 @@ setDraw(params.get("draw"));
     else if(k === "[") nextPrize(-1);
     else if(k === "r" || k === "R") redraw();
     else if(k === "v" || k === "V") cycleDraw();
+    else if(k === "t" || k === "T") setBoard(BOARDS[(BOARDS.indexOf(boardStyle) + 1) % BOARDS.length]);
     else if(k === "h" || k === "H") document.body.classList.toggle("bar-pin");
   });
 
@@ -570,6 +630,8 @@ setDraw(params.get("draw"));
     if(b) jump(b.dataset.demo);
     const d = e.target.closest("[data-draw]");
     if(d) setDraw(d.dataset.draw);
+    const t = e.target.closest("[data-board]");
+    if(t) setBoard(t.dataset.board);
     if(e.target.closest("#prizePrev")) nextPrize(-1);
     if(e.target.closest("#prizeNext")) nextPrize(1);
     if(e.target.closest("#redrawBtn")) redraw();
