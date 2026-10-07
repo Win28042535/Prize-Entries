@@ -10,3 +10,6 @@ Thumbs.db
 
 .vercel
 .env*
+
+# KV source plates (3240x4050 PNG); prize-assets/img/kv-*.webp are the resized copies in use
+/*.png

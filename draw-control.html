@@ -264,7 +264,7 @@ function render(){
 // ---- events ----
 $("#openShow").addEventListener("click", () => {
   // a named target opens a new tab, and reuses it if the screen is already open
-  window.open("show-screen.html", "bt2026-show");
+  window.open("show-screen.html?live", "bt2026-show");
 });
 $("#scenes").addEventListener("click", e => {
   const b = e.target.closest("[data-scene]"); if(!b) return;

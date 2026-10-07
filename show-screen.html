@@ -28,25 +28,32 @@
   #frame{position:fixed;inset:0;overflow:hidden}
   #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;overflow:hidden;
     background:linear-gradient(180deg,#F6F7FB 0%,#E9EDF6 100%)}
-  .bg{position:absolute;inset:0;background:url("prize-assets/img/room-bg-1920.webp") center/cover no-repeat;opacity:.92}
-  .beams{position:absolute;inset:-20%;pointer-events:none;mix-blend-mode:screen;opacity:.75}
-  .beam{position:absolute;top:0;width:260px;height:150%;filter:blur(30px);transform-origin:top center;
-    background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,0) 75%);animation:sway 12s ease-in-out infinite alternate}
-  .beam:nth-child(1){left:38%;transform:rotate(18deg)}
-  .beam:nth-child(2){left:55%;transform:rotate(26deg);width:160px;animation-delay:-4s}
-  .beam:nth-child(3){left:70%;transform:rotate(34deg);width:120px;animation-delay:-8s;
-    background:linear-gradient(180deg,rgba(180,200,255,.8),rgba(255,255,255,0) 70%)}
-  @keyframes sway{to{margin-left:-80px}}
-  .floor{position:absolute;left:0;right:0;bottom:0;height:260px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.75))}
+  /* ---- KV backdrop: sky seen between two white walls (key visual), layered so each part can move ---- */
+  .sky{position:absolute;top:0;left:-6%;width:112%;height:100%;background:url("prize-assets/img/kv-sky.webp") center/cover no-repeat;
+    animation:drift 70s ease-in-out infinite alternate}
+  @keyframes drift{to{transform:translateX(-5%)}}
+  /* walls are cut from the KV along the sky edge and pushed apart so the gap is wide enough for the content */
+  .wall{position:absolute;top:0;height:1600px;pointer-events:none}
+  .wall.l{left:-125px}
+  .wall.r{left:1359px}
+  /* soft white wash behind the content, so blue text never sits on blue sky */
+  .halo{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 560px 340px at 50% 56%,rgba(255,255,255,.82),rgba(255,255,255,.5) 55%,rgba(255,255,255,0) 100%)}
+  .floor{position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))}
 
-  /* glass elements stay at the edges so the centre is free for names */
+  /* the ship is the gimmick: bottom-right, smaller than the content, size set per scene */
+  .ship{position:absolute;right:28px;bottom:0;height:540px;transform-origin:bottom right;
+    filter:drop-shadow(0 20px 40px rgba(17,19,24,.18));transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .8s}
+  #stage[data-scene="prize"] .ship,#stage[data-scene="drawing"] .ship,#stage[data-scene="redraw"] .ship{transform:scale(.74)}
+  #stage[data-scene="reveal"] .ship{transform:scale(.56);animation:shipglow 2.4s ease-out .6s}
+  #stage[data-scene="board"] .ship{transform:translateY(70%) scale(.6);opacity:.0}
+  @keyframes shipglow{30%{filter:drop-shadow(0 0 40px rgba(101,152,255,.9)) brightness(1.15)}}
+
+  /* glass elements stay at the edges so the centre is free for names; the ship carries its own set */
   .el{position:absolute;filter:drop-shadow(0 26px 30px rgba(63,111,224,.22));animation:bob 6s ease-in-out infinite}
   .el.candle{left:60px;top:300px;width:250px;animation-delay:-1s}
   .el.gold{left:250px;bottom:120px;width:150px;animation-delay:-3s}
-  .el.heart{left:300px;top:120px;width:96px;animation-delay:-2s}
-  .el.coin{right:110px;top:110px;width:220px;animation-delay:-4s}
-  .el.gift{right:120px;bottom:120px;width:230px;animation-delay:-5s}
-  .el.gem{right:380px;bottom:330px;width:100px;animation-delay:-1.5s}
+  .el.gem{right:150px;top:150px;width:150px;animation-delay:-1.5s}
   @keyframes bob{50%{transform:translateY(-18px) rotate(-3deg)}}
 
   .top{position:absolute;left:96px;right:96px;top:64px;display:flex;justify-content:space-between;align-items:center;z-index:5}
@@ -89,6 +96,34 @@
   @keyframes shuffle{0%,100%{transform:none}30%{transform:translateX(-120px) rotate(-10deg)}60%{transform:translateX(120px) rotate(10deg);z-index:2}}
   .drawing .deck{width:210px;margin:30px 0 18px}
   .count{font-size:260px;font-weight:500;line-height:1;min-height:260px;color:var(--ink)}
+  .dv{display:none;flex-direction:column;align-items:center}
+  body.draw-A .dv-A,body.draw-B .dv-B,body.draw-C .dv-C{display:flex}
+
+  /* B: name reel, 3 visible rows, the centre row is the pick */
+  .reel{position:relative;width:1240px;height:540px;margin:34px 0 10px;overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent);mask-image:linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent)}
+  .reel-band{position:absolute;left:0;right:0;top:180px;height:180px;border-block:2px solid var(--blue);background:var(--blue-tint)}
+  .reel-in{position:absolute;left:0;right:0;top:0;will-change:transform}
+  .reel-in div{height:180px;line-height:180px;font-size:112px;font-weight:600;white-space:nowrap;color:var(--ink-3);opacity:.55}
+  .reel-in div.hit{color:var(--ink);opacity:1}
+  .dv-B .count{font-size:140px;min-height:140px}
+
+  /* C: rim-palette rings */
+  .orb{position:relative;width:640px;height:640px;margin:20px 0 10px;display:flex;align-items:center;justify-content:center}
+  .orb .count{position:relative;z-index:2;font-size:280px;min-height:0}
+  .ring{position:absolute;border-radius:50%;
+    background:conic-gradient(from 0deg,#00d4fe,#1f87e6,#113cf3,#722df4,#e63bd8,#f79319,#00d4fe);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));
+    animation:spin var(--t,6s) linear infinite;transition:opacity .4s,transform .6s}
+  .ring.r1{inset:0;--t:7s}
+  .ring.r2{inset:56px;--t:4.5s;animation-direction:reverse;opacity:.8}
+  .ring.r3{inset:112px;--t:3s;opacity:.6}
+  .glow{position:absolute;inset:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(101,152,255,.25) 60%,transparent 72%)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .orb.fast .ring.r1{--t:2.4s}.orb.fast .ring.r2{--t:1.6s}.orb.fast .ring.r3{--t:1s}
+  .orb.burst .ring{transform:scale(1.35);opacity:0}
+  .orb.burst .glow{animation:flash .5s ease-out forwards}
+  @keyframes flash{to{transform:scale(2.6);opacity:0}}
   .count.tick{animation:tick .9s cubic-bezier(.2,.8,.2,1)}
   @keyframes tick{from{transform:scale(1.35);opacity:0;color:var(--blue-ink)}to{transform:none;opacity:1}}
   .drawing .sub{font-size:30px;color:var(--ink-2);margin-top:4px}
@@ -136,7 +171,7 @@
   .demo-badge{display:none;position:absolute;right:96px;bottom:36px;z-index:8;padding:8px 18px;border-radius:999px;font-size:20px;
     color:var(--ink-2);background:rgba(255,255,255,.8);border:1px solid var(--line)}
   .demo-badge b{font-family:var(--serif);font-weight:400;letter-spacing:.1em;margin-right:8px;color:var(--blue-ink)}
-  body.is-demo .demo-badge{display:block}
+  body.is-auto .demo-badge{display:block}
 
 
   /* demo controls: outside the scaled stage, shown on mouse move */
@@ -144,7 +179,7 @@
     max-width:calc(100% - 16px);overflow-x:auto;scrollbar-width:none;
     border-radius:999px;background:rgba(17,19,24,.82);backdrop-filter:blur(8px);opacity:0;transition:opacity .3s,transform .3s;font-family:var(--sans)}
   body.is-demo .demo-bar{display:flex}
-  body.bar-on .demo-bar{opacity:1;transform:translate(-50%,0)}
+  body.bar-on .demo-bar,body.bar-pin .demo-bar{opacity:1;transform:translate(-50%,0)}
   .demo-bar button{font:inherit;font-size:14px;color:#fff;background:none;border:0;cursor:pointer;height:44px;padding:0 14px;border-radius:999px;white-space:nowrap;flex:none}
   .demo-bar button:hover{background:rgba(255,255,255,.12)}
   .demo-bar button[aria-pressed="true"]{background:#fff;color:var(--ink)}
@@ -156,15 +191,15 @@
 <body>
 <div id="frame">
 <div id="stage">
-  <div class="bg"></div>
-  <div class="beams"><div class="beam"></div><div class="beam"></div><div class="beam"></div></div>
+  <div class="sky"></div>
+  <img class="wall l" src="prize-assets/img/kv-wall-l.webp" alt="">
+  <img class="wall r" src="prize-assets/img/kv-wall-r.webp" alt="">
   <div class="floor"></div>
+  <div class="halo"></div>
+  <img class="ship" src="prize-assets/img/kv-ship.webp" alt="">
 
   <img class="el candle" src="prize-assets/img/candle.png" alt="">
   <img class="el gold" src="prize-assets/img/gold.png" alt="">
-  <img class="el heart" src="prize-assets/img/heart.png" alt="">
-  <img class="el coin" src="prize-assets/img/bitcoin.png" alt="">
-  <img class="el gift" src="prize-assets/img/ICON_GIFT_PNG.png" alt="">
   <img class="el gem" src="prize-assets/img/diamond.png" alt="">
 
   <div class="top">
@@ -191,12 +226,31 @@
 
   <section class="scene drawing" data-scene="drawing">
     <div class="k">Drawing</div>
-    <div class="deck">
-      <img src="prize-assets/cards/back.webp" alt="" style="--i:0">
-      <img src="prize-assets/cards/back.webp" alt="" style="--i:1">
-      <img src="prize-assets/cards/back.webp" alt="" style="--i:2">
+
+    <!-- A: shuffling deck of back cards -->
+    <div class="dv dv-A">
+      <div class="deck">
+        <img src="prize-assets/cards/back.webp" alt="" style="--i:0">
+        <img src="prize-assets/cards/back.webp" alt="" style="--i:1">
+        <img src="prize-assets/cards/back.webp" alt="" style="--i:2">
+      </div>
+      <div class="count"></div>
     </div>
-    <div class="count" id="count"></div>
+
+    <!-- B: name reel that slows down and stops on the winner -->
+    <div class="dv dv-B">
+      <div class="reel"><i class="reel-band"></i><div class="reel-in" id="reelIn"></div></div>
+      <div class="count"></div>
+    </div>
+
+    <!-- C: energy rings around the countdown, burst at zero -->
+    <div class="dv dv-C">
+      <div class="orb" id="orb">
+        <i class="ring r1"></i><i class="ring r2"></i><i class="ring r3"></i><i class="glow"></i>
+        <div class="count"></div>
+      </div>
+    </div>
+
     <div class="sub" id="dSub"></div>
   </section>
 
@@ -230,14 +284,21 @@
 </div>
 
 <div class="demo-bar" id="demoBar" role="toolbar" aria-label="ควบคุมตัวอย่าง">
-  <button data-demo="idle">หน้ารอ</button>
-  <button data-demo="prize">ประกาศรางวัล</button>
-  <button data-demo="drawing">นับถอยหลัง</button>
-  <button data-demo="reveal">ผู้ชนะ</button>
-  <button data-demo="board">ตารางผู้ชนะ</button>
+  <button data-demo="idle" title="1">หน้ารอ</button>
+  <button data-demo="prize" title="2">ประกาศรางวัล</button>
+  <button data-demo="drawing" title="3">กำลังสุ่ม</button>
+  <button data-demo="reveal" title="4">ผู้โชคดี</button>
+  <button data-demo="board" title="5">ตารางผู้ชนะ</button>
   <span class="sep"></span>
-  <button id="demoPause">หยุด</button>
-  <button id="demoFs">เต็มจอ</button>
+  <button id="prizePrev" title="[">◀ รางวัล</button>
+  <button id="prizeNext" title="]">รางวัล ▶</button>
+  <button id="redrawBtn" title="R">สุ่มใหม่</button>
+  <span class="sep"></span>
+  <button data-draw="A" title="V">สุ่ม A ไพ่</button>
+  <button data-draw="B">สุ่ม B รายชื่อ</button>
+  <button data-draw="C">สุ่ม C วงแหวน</button>
+  <span class="sep"></span>
+  <button id="demoFs" title="F">เต็มจอ</button>
 </div>
 
 <script src="prize-assets/prize-data.js"></script>
@@ -269,9 +330,40 @@ const nm = s => String(s).replace(/(\s+-)+\s*$/, "").trim() || String(s);
 
 let timers = [];
 const later = (fn, ms) => timers.push(setTimeout(fn, ms));
-function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+let reelRaf = 0;
+function clearTimers(){ timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(reelRaf); }
+
+// ---- drawing style: A cards / B name reel / C rings (V cycles, ?draw=B picks) ----
+const STYLES = ["A", "B", "C"];
+let drawStyle = "A";
+function setDraw(x){
+  drawStyle = STYLES.includes(x) ? x : "A";
+  STYLES.forEach(k => document.body.classList.toggle("draw-" + k, k === drawStyle));
+  document.querySelectorAll("#demoBar [data-draw]").forEach(b => b.setAttribute("aria-pressed", b.dataset.draw === drawStyle));
+}
+
+const ROW = 180;
+function startReel(st, dur){
+  const names = D.PEOPLE.map(p => nm(p.n));
+  for(let i = names.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [names[i], names[j]] = [names[j], names[i]]; }
+  const N = 40, rows = [];
+  for(let i = 0; i < N - 1; i++) rows.push(names[i % names.length]);
+  rows.push(st.winner ? nm(st.winner.n) : names[0]);
+  const inner = $("#reelIn");
+  inner.innerHTML = rows.map(n => `<div>${esc(n)}</div>`).join("");
+  const set = e => inner.style.transform = `translateY(${ROW - (1 + (N - 2) * e) * ROW}px)`;
+  set(0);
+  const t0 = performance.now(), len = Math.max(600, dur - 250);
+  const step = now => {
+    const k = Math.min(1, (now - t0) / len);
+    set(1 - Math.pow(1 - k, 4));
+    if(k < 1) reelRaf = requestAnimationFrame(step); else inner.lastElementChild.classList.add("hit");
+  };
+  reelRaf = requestAnimationFrame(step);
+}
 
 function go(scene){
+  stage.dataset.scene = scene;
   document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.dataset.scene === scene));
   if(scene !== "reveal"){ $("#card").innerHTML = ""; parts = []; emitUntil = 0; }
   const chip = scene === "redraw" ? "drawing" : scene;
@@ -290,11 +382,16 @@ function showPrize(st){
 function showDrawing(st, done){
   go("drawing");
   $("#dSub").textContent = `กำลังสุ่ม ${st.prize.name}`;
-  const secs = Math.max(1, st.countdown || 5), el = $("#count");
+  const secs = Math.max(1, st.countdown || 5), els = document.querySelectorAll(".count"), orb = $("#orb");
+  orb.classList.remove("fast", "burst");
+  if(drawStyle === "B") startReel(st, secs * 1000);
+  if(drawStyle === "C"){
+    later(() => orb.classList.add("fast"), Math.max(0, (secs - 2) * 1000));
+    later(() => orb.classList.add("burst"), secs * 1000 - 200);
+  }
   for(let i = 0; i < secs; i++){
     later(() => {
-      el.textContent = secs - i;
-      el.classList.remove("tick"); void el.offsetWidth; el.classList.add("tick");
+      els.forEach(el => { el.textContent = secs - i; el.classList.remove("tick"); void el.offsetWidth; el.classList.add("tick"); });
     }, i * 1000);
   }
   later(done, secs * 1000);
@@ -401,11 +498,18 @@ function tick(){
 
 const params = new URLSearchParams(location.search);
 
-if(params.has("demo")){
-  // ---- demo mode: plays a sample sequence by itself, never joins the live channel ----
+setDraw(params.get("draw"));
+
+if(!params.has("live") && !params.has("preview")){
+  // ---- standalone: staff drive the scenes by hand (keys / bar / ?scene=), no Control Panel needed.
+  //      ?demo adds an auto-playing loop. ?live or ?preview joins the Control Panel instead. ----
+  const auto = params.has("demo");
   document.body.classList.add("is-demo");
+  if(auto) document.body.classList.add("is-auto");
+  if(params.has("bar")) document.body.classList.add("bar-pin");
   const STEPS = [["idle", 4000], ["prize", 5000], ["drawing", 13000], ["board", 6000]];
-  let seq = 1000, prizeIdx = 0, winner = null, list = [], step = 0, loop = 0, rounds = 0, paused = false;
+  let seq = 1000, prizeIdx = Math.max(0, Math.min(D.PRIZES.length - 1, (+params.get("prize") || 1) - 1)),
+      winner = null, list = [], step = 0, loop = 0, rounds = 0, paused = !auto, redrawFlag = false;
 
   const pickWinner = () => {
     const won = new Set(list.map(w => w.id));
@@ -421,7 +525,7 @@ if(params.has("demo")){
   const state = scene => {
     const p = D.PRIZES[prizeIdx], used = list.filter(w => w.prize === p.name).length;
     return {
-      scene, seq: ++seq, countdown: 5,
+      scene, seq: ++seq, countdown: 5, redraw: redrawFlag && scene === "drawing",
       prize: { name: p.name, qty: p.qty, left: Math.max(0, p.qty - used) },
       pool: { label: "ผู้ถือบัตรทุกประเภท", count: D.PEOPLE.length - list.length + (scene === "drawing" ? 1 : 0) },
       winner,
@@ -447,23 +551,48 @@ if(params.has("demo")){
   };
   window.demoJump = jump;
 
-  // controls appear while the mouse moves, then hide again
+  const nextPrize = d => { prizeIdx = (prizeIdx + d + D.PRIZES.length) % D.PRIZES.length; jump("prize"); };
+  const redraw = () => {
+    if(winner) list.pop();            // the redrawn winner goes back to the pool
+    redrawFlag = true; jump("drawing"); redrawFlag = false;
+  };
+  const cycleDraw = () => { setDraw(STYLES[(STYLES.indexOf(drawStyle) + 1) % STYLES.length]); };
+  // Space / arrow: idle > prize > drawing > board; the reveal follows the drawing by itself
+  const SEQ = ["idle", "prize", "drawing", "board"];
+  let cur = 0;
+  const goto = i => { cur = (i + SEQ.length) % SEQ.length; jump(SEQ[cur]); };
+
+  addEventListener("keydown", e => {
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    const k = e.key;
+    if("12345".includes(k) && k.length === 1) { jump(["idle","prize","drawing","reveal","board"][+k - 1]); cur = Math.max(0, SEQ.indexOf(["idle","prize","drawing","drawing","board"][+k - 1])); }
+    else if(k === " " || k === "ArrowRight" || k === "PageDown"){ e.preventDefault(); goto(cur + 1); }
+    else if(k === "ArrowLeft" || k === "PageUp"){ e.preventDefault(); goto(cur - 1); }
+    else if(k === "]") nextPrize(1);
+    else if(k === "[") nextPrize(-1);
+    else if(k === "r" || k === "R") redraw();
+    else if(k === "v" || k === "V") cycleDraw();
+    else if(k === "h" || k === "H") document.body.classList.toggle("bar-pin");
+  });
+
+  // controls: H pins the bar; with ?demo or ?bar they also appear while the mouse moves
   let hide = 0;
   const wake = () => { document.body.classList.add("bar-on"); clearTimeout(hide); hide = setTimeout(() => document.body.classList.remove("bar-on"), 2500); };
-  addEventListener("mousemove", wake); addEventListener("touchstart", wake);
+  if(auto || params.has("bar")){ addEventListener("mousemove", wake); addEventListener("touchstart", wake); }
   $("#demoBar").addEventListener("dblclick", e => e.stopPropagation());
   $("#demoBar").addEventListener("click", e => {
     const b = e.target.closest("[data-demo]");
     if(b) jump(b.dataset.demo);
+    const d = e.target.closest("[data-draw]");
+    if(d) setDraw(d.dataset.draw);
+    if(e.target.closest("#prizePrev")) nextPrize(-1);
+    if(e.target.closest("#prizeNext")) nextPrize(1);
+    if(e.target.closest("#redrawBtn")) redraw();
     if(e.target.closest("#demoFs")) toggleFs();
-    if(e.target.closest("#demoPause")){
-      paused = !paused;
-      $("#demoPause").textContent = paused ? "เล่นต่อ" : "หยุด";
-      paused ? clearTimeout(loop) : schedule(1500);
-    }
   });
   wake();
-  run(0);
+  const first = params.get("scene") || "idle";
+  if(auto) run(0); else { jump(first); cur = Math.max(0, SEQ.indexOf(first === "reveal" ? "drawing" : first)); }
 } else {
   // ---- live: sync with the Control Panel ----
   const ch = new BroadcastChannel(D.CHANNEL);
