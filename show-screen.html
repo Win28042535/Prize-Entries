@@ -23,11 +23,31 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;background:#000;overflow:hidden;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
 
-  /* fixed 1920x1080 canvas, scaled to the window (letterboxed) */
-  /* the 1920px stage lives in a clipping, viewport-sized box so it never makes the page wider than the screen */
+  /* Two LED screens, one canvas each (set in JS from ?screen=, key S):
+       main  5.5 x 3 m  = 1408 x 768  -> virtual 1920 x 1047
+       wide  16 x 4 m   = 4096 x 1024 -> virtual 4320 x 1080
+     The virtual canvas keeps the original 1080-tall design units and is scaled to the screen's real pixels,
+     then letterboxed in black inside the window. */
   #frame{position:fixed;inset:0;overflow:hidden}
-  #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center;overflow:hidden;
+  #stage{position:absolute;left:50%;top:50%;width:1920px;height:1047px;transform-origin:center;overflow:hidden;
     background:linear-gradient(180deg,#F6F7FB 0%,#E9EDF6 100%)}
+  /* everything is composed on a 1920-wide core centred in the stage; on the wide screen the stage adds wings around it */
+  #core{position:absolute;top:0;bottom:0;left:50%;width:1920px;margin-left:-960px}
+  .wing,.wing-el,.seam{display:none}
+  body.screen-wide .wing,body.screen-wide .wing-el,body.screen-wide .seam{display:block}
+  /* wings continue the walls' grey outer edge and lighten towards the ends of the 16 m screen */
+  .wing{position:absolute;top:0;bottom:0;width:1300px;pointer-events:none}
+  .wing.l{right:calc(100% + 123px);background:linear-gradient(270deg,#C8C9CE 0%,#DADCE1 25%,#E9EBF1 65%,#E3E6ED 100%)}
+  .wing.r{left:2073px;background:linear-gradient(90deg,#C8C9CE 0%,#DADCE1 25%,#E9EBF1 65%,#E3E6ED 100%)}
+  /* feather the walls' grey outer edge into the wing colour so there is no seam */
+  .seam{position:absolute;top:0;bottom:0;width:260px;pointer-events:none}
+  .seam.l{left:-125px;background:linear-gradient(90deg,#C8C9CE,rgba(200,201,206,0))}
+  .seam.r{left:1815px;background:linear-gradient(270deg,#C8C9CE,rgba(200,201,206,0))}
+  .wing-el{position:absolute;filter:drop-shadow(0 22px 26px rgba(63,111,224,.2));animation:bob 7s ease-in-out infinite}
+  .wing-el.a{left:-860px;top:190px;width:150px;animation-delay:-2s}
+  .wing-el.b{left:-520px;bottom:150px;width:160px;animation-delay:-4.5s}
+  .wing-el.c{left:2700px;top:250px;width:140px;animation-delay:-1s}
+  .wing-el.d{left:2660px;bottom:170px;width:160px;animation-delay:-3.5s}
   /* ---- KV backdrop: sky seen between two white walls (key visual), layered so each part can move ---- */
   .sky{position:absolute;top:0;left:-6%;width:112%;height:100%;background:url("prize-assets/img/kv-sky.webp") center/cover no-repeat;
     animation:drift 70s ease-in-out infinite alternate}
@@ -39,17 +59,17 @@
   /* soft white wash behind the content, so blue text never sits on blue sky */
   .halo{position:absolute;inset:0;pointer-events:none;
     background:radial-gradient(ellipse 560px 340px at 50% 56%,rgba(255,255,255,.82),rgba(255,255,255,.5) 55%,rgba(255,255,255,0) 100%)}
-  .floor{position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))}
+  .floor{position:absolute;left:-1200px;right:-1200px;bottom:0;height:300px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))}
 
   /* the ship is the gimmick: bottom-right, same size and place in every scene, behind all content */
   .ship{position:absolute;right:28px;bottom:0;height:280px;filter:drop-shadow(0 20px 40px rgba(17,19,24,.18))}
 
   /* glass elements stay at the edges so the centre is free for names; the ship carries its own set */
   .el{position:absolute;filter:drop-shadow(0 26px 30px rgba(63,111,224,.22));animation:bob 6s ease-in-out infinite}
-  .el.candle{left:60px;top:300px;width:250px;animation-delay:-1s}
+  .el.candle{left:-5px;top:300px;width:250px;animation-delay:-1s}
   .el.chest{left:240px;bottom:112px;width:170px;animation-delay:-3s}
   .el.efin{right:356px;bottom:64px;width:124px;animation-delay:-2s}
-  .el.gift{right:138px;top:128px;width:190px;animation-delay:-1.5s}
+  .el.gift{right:138px;top:106px;width:190px;animation-delay:-1.5s}
   @keyframes bob{50%{transform:translateY(-18px) rotate(-3deg)}}
 
   .top{position:absolute;left:96px;right:96px;top:64px;display:flex;justify-content:space-between;align-items:center;z-index:5}
@@ -123,35 +143,46 @@
   .who .meta{margin-top:24px;font-size:46px;font-weight:700;color:var(--ink-2)}
 
   /* board */
-  .board h2{margin:8px 0 26px}
+  /* the ship keeps one size and place everywhere, so the board is compact and top-anchored: its grid ends above the ship's top (fitBoard checks it) */
+  .scene.board{justify-content:flex-start;padding-top:124px}
+  .board h2{font-size:110px;margin:6px 0 14px}
   /* 3 columns x up to 4 rows (12 winners); names and prizes are sized for reading from far away */
-  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 18px;max-width:1656px}
-  .tile{width:540px;display:flex;gap:18px;align-items:center;text-align:left;padding:12px;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
-  .tile img{width:72px;aspect-ratio:1418/1985;border-radius:8px;flex:none;object-fit:cover}
+  .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 18px;max-width:1596px;transform-origin:top center}
+  .tile{width:520px;display:flex;gap:16px;align-items:center;text-align:left;padding:10px 12px;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  .tile img{width:56px;aspect-ratio:1418/1985;border-radius:8px;flex:none;object-fit:cover}
   .tile > div{min-width:0;flex:1}
-  .tile b{display:block;font-size:40px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tile small{display:block;font-size:30px;font-weight:500;color:var(--blue-ink);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile b{display:block;font-size:38px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile small{display:block;font-size:28px;font-weight:500;color:var(--blue-ink);margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* wide screen: plenty of height, so the board sits centred; the candle would peek out between its tiles, so it steps aside */
+  body.screen-wide .scene.board{justify-content:center;padding:0 0 160px}
+  .el.candle{transition:opacity .6s}
+  body.screen-wide #stage[data-scene="board"] .el.candle{opacity:0}
+  /* wider than the 1920 core on purpose: it overflows the core evenly on both sides */
+  body.screen-wide .grid{width:3210px;max-width:none}
+  body.screen-wide .groups{width:2214px}
   .board .empty{font-size:46px;font-weight:700;color:var(--ink-2)}
   /* B: same grid, a big order number instead of the character card */
-  .tile .rank{flex:none;width:84px;text-align:center;font-size:58px;font-weight:600;line-height:1;color:var(--blue-ink)}
-  .grid.ranked .tile{padding:16px 18px 16px 10px}
-  .grid.ranked .tile b{font-size:46px;font-weight:700}
+  .tile .rank{flex:none;width:80px;text-align:center;font-size:52px;font-weight:600;line-height:1;color:var(--blue-ink)}
+  .grid.ranked .tile{padding:10px 18px 10px 8px}
+  .grid.ranked .tile b{font-size:44px;font-weight:700}
   /* C: one glass column per prize, winners listed under the prize name */
-  .groups{display:flex;gap:18px;justify-content:center;align-items:flex-start;width:1656px}
+  .groups{display:flex;gap:18px;justify-content:center;align-items:flex-start;width:1596px}
   .group{flex:1 1 0;min-width:0;max-width:540px;text-align:left;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
-  .group header{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)}
-  .group header img{width:52px;height:52px;flex:none}
-  .group header div{min-width:0}
-  .group header b{display:block;font-size:34px;font-weight:700;line-height:1.2;color:var(--blue-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .group header small{display:block;font-size:22px;color:var(--ink-2)}
+  .group header{padding:14px 20px 12px;border-bottom:1px solid var(--line)}
+  .group header b{display:block;font-size:40px;font-weight:700;line-height:1.2;color:var(--blue-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .group header small{display:block;margin-top:2px;font-size:28px;font-weight:700;color:var(--ink-2)}
+  .group header small em{font-style:normal;font-size:36px;color:var(--ink);margin:0 4px}
   .group ol{list-style:none;padding:8px 20px 14px}
-  .group li{display:flex;align-items:baseline;gap:14px;padding:6px 0}
+  .group li{display:flex;align-items:baseline;gap:14px;padding:4px 0;break-inside:avoid}
+  /* a prize with many winners: wider, names in two columns */
+  .group.many{flex-grow:2;max-width:1080px}
+  .group.many ol{columns:2;column-gap:28px}
   .group li i{flex:none;width:58px;font-style:normal;font-size:24px;font-weight:500;color:var(--blue-ink)}
   .group li b{min-width:0;flex:1;font-size:36px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   #confetti{position:absolute;inset:0;z-index:3;pointer-events:none}
   .guide{position:absolute;inset:54px 96px;border:2px dashed rgba(229,59,216,.7);z-index:9;display:none;pointer-events:none}
-  .guide::after{content:"SAFE AREA 1920×1080 · 5%";position:absolute;left:12px;top:8px;font:600 18px var(--sans);color:#e63bd8}
+  .guide::after{content:"SAFE AREA · 5%";position:absolute;left:12px;top:8px;font:600 18px var(--sans);color:#e63bd8}
   body.show-guide .guide{display:block}
   .demo-badge{display:none;position:absolute;right:96px;bottom:36px;z-index:8;padding:8px 18px;border-radius:999px;font-size:20px;
     color:var(--ink-2);background:rgba(255,255,255,.8);border:1px solid var(--line)}
@@ -179,9 +210,16 @@
 <body>
 <div id="frame">
 <div id="stage">
+<div id="core">
+  <div class="wing l"></div><div class="wing r"></div>
+  <img class="wing-el a" src="prize-assets/img/diamond-icon.webp" alt="">
+  <img class="wing-el b" src="prize-assets/img/gold-bars.webp" alt="">
+  <img class="wing-el c" src="prize-assets/img/coin.webp" alt="">
+  <img class="wing-el d" src="prize-assets/img/gold-bars.webp" alt="">
   <div class="sky"></div>
   <img class="wall l" src="prize-assets/img/kv-wall-l.webp" alt="">
   <img class="wall r" src="prize-assets/img/kv-wall-r.webp" alt="">
+  <div class="seam l"></div><div class="seam r"></div>
   <div class="floor"></div>
   <div class="halo"></div>
   <img class="ship" src="prize-assets/img/kv-ship.webp" alt="">
@@ -258,6 +296,7 @@
   </section>
 
   <canvas id="confetti" width="1920" height="1080"></canvas>
+</div>
   <div class="guide"></div>
   <div class="demo-badge"><b>DEMO</b>ตัวอย่างการแสดงผล</div>
 </div>
@@ -281,6 +320,9 @@
   <button data-board="B">ตาราง B ลำดับ</button>
   <button data-board="C">ตาราง C ตามรางวัล</button>
   <span class="sep"></span>
+  <button data-screen="main" title="S">จอ 5.5×3</button>
+  <button data-screen="wide">จอ 16×4</button>
+  <span class="sep"></span>
   <button id="demoFs" title="F">เต็มจอ</button>
 </div>
 
@@ -297,12 +339,30 @@ const rand = STILL ? (() => { let x = 7; return () => (x = (x * 9301 + 49297) % 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 // size from the layout viewport (clientWidth/Height), not innerWidth: on phones innerWidth follows pinch-zoom
+const SCREENS = {
+  main: { w: 1408, h: 768,  vw: 1920, vh: 1047 },   // 5.5 x 3 m
+  wide: { w: 4096, h: 1024, vw: 4320, vh: 1080 },   // 16 x 4 m
+};
+let screen = "main";
 function fit(){
-  const el = document.documentElement;
-  const s = Math.min(el.clientWidth / 1920, el.clientHeight / 1080);
+  const el = document.documentElement, S = SCREENS[screen];
+  // fit the real screen size into the window, then map the virtual canvas onto it
+  const s = Math.min(el.clientWidth / S.w, el.clientHeight / S.h) * (S.w / S.vw);
   stage.style.transform = `translate(-50%,-50%) scale(${s})`;
 }
-addEventListener("resize", fit); fit();
+function setScreen(x){
+  const first = !stage.dataset.sized;
+  screen = SCREENS[x] ? x : "main";
+  const S = SCREENS[screen];
+  stage.style.width = S.vw + "px"; stage.style.height = S.vh + "px";
+  Object.keys(SCREENS).forEach(k => document.body.classList.toggle("screen-" + k, k === screen));
+  document.querySelectorAll("#demoBar [data-screen]").forEach(b => b.setAttribute("aria-pressed", b.dataset.screen === screen));
+  fit();
+  stage.dataset.sized = "1";
+  if(!first && typeof lastBoard !== "undefined" && lastBoard && stage.dataset.scene === "board") showBoard(lastBoard);
+}
+addEventListener("resize", fit);
+setScreen(params.get("screen"));
 
 // browsers only allow fullscreen after a click/key in this page, so: F, double-click, or the demo bar button
 const toggleFs = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
@@ -337,6 +397,9 @@ function setBoard(x){
   document.querySelectorAll("#demoBar [data-board]").forEach(b => b.setAttribute("aria-pressed", b.dataset.board === boardStyle));
   if(lastBoard && stage.dataset.scene === "board") showBoard(lastBoard);
 }
+
+// webfonts change text metrics: re-fit the board once they have loaded
+document.fonts?.ready.then(() => { if(lastBoard && stage.dataset.scene === "board") showBoard(lastBoard); });
 
 const ROW = 120, WIN = 600;
 function startReel(st, dur){
@@ -416,6 +479,15 @@ function showReveal(st, instant){
   if(!instant) later(confetti, 300);
 }
 
+// whatever the data, keep the board above the ship: scale it down if its bottom would reach the ship's top
+function fitBoard(){
+  const grid = $("#grid"), ship = document.querySelector(".ship");
+  grid.style.transform = "";
+  const top = grid.offsetTop, h = grid.offsetHeight;
+  const limit = stage.clientHeight - ship.offsetHeight - 30;
+  if(top + h > limit) grid.style.transform = `scale(${Math.max(.5, (limit - top) / h).toFixed(3)})`;
+}
+
 function showBoard(st){
   lastBoard = st;
   const list = st.winners.slice(-12), grid = $("#grid");
@@ -434,8 +506,7 @@ function showBoard(st){
     grid.className = "groups";
     grid.innerHTML = groups.slice(-4).map(g => {
       const qty = (D.PRIZES.find(p => p.name === g.prize) || {}).qty;
-      return `<section class="group"><header><img src="prize-assets/img/gift.webp" alt="">
-        <div><b>${esc(g.prize)}</b><small>ผู้โชคดี ${g.people.length}${qty ? ` จาก ${qty}` : ""} รางวัล</small></div></header>
+      return `<section class="group${g.people.length > 5 ? " many" : ""}"><header><b>${esc(g.prize)}</b><small>ผู้โชคดี<em>${g.people.length}</em>${qty ? `จาก ${qty} ` : ""}รางวัล</small></header>
         <ol>${g.people.map(w => `<li><i>ที่ ${w.no}</i><b>${esc(nm(w.n))}</b></li>`).join("")}</ol></section>`;
     }).join("");
   } else {
@@ -446,6 +517,7 @@ function showBoard(st){
       <div><b>${esc(nm(w.n))}</b><small>${label(w)}</small></div></div>`).join("");
   }
   go("board");
+  fitBoard();
   // long names shrink to fit (down to 26px), then ellipsis
   grid.querySelectorAll("b").forEach(el => {
     el.style.fontSize = "";
@@ -454,6 +526,7 @@ function showBoard(st){
       el.style.fontSize = Math.max(26, Math.floor(base * el.clientWidth / el.scrollWidth)) + "px";
     }
   });
+  fitBoard();
 }
 
 let lastSeq = -1;
@@ -606,6 +679,7 @@ setBoard(params.get("board"));
     else if(k === "[") nextPrize(-1);
     else if(k === "r" || k === "R") redraw();
     else if(k === "v" || k === "V") cycleDraw();
+    else if(k === "s" || k === "S") setScreen(screen === "main" ? "wide" : "main");
     else if(k === "t" || k === "T") setBoard(BOARDS[(BOARDS.indexOf(boardStyle) + 1) % BOARDS.length]);
     else if(k === "h" || k === "H") document.body.classList.toggle("bar-pin");
   });
@@ -622,6 +696,8 @@ setBoard(params.get("board"));
     if(d) setDraw(d.dataset.draw);
     const t = e.target.closest("[data-board]");
     if(t) setBoard(t.dataset.board);
+    const sc = e.target.closest("[data-screen]");
+    if(sc) setScreen(sc.dataset.screen);
     if(e.target.closest("#prizePrev")) nextPrize(-1);
     if(e.target.closest("#prizeNext")) nextPrize(1);
     if(e.target.closest("#redrawBtn")) redraw();
