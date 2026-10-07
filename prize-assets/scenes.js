@@ -5,7 +5,6 @@ window.SCENES = [
   { group: "main", id: "prize",      title: "ประกาศรางวัล",          q: "scene=prize" },
   { group: "main", id: "drawing-a",  title: "กำลังสุ่ม · A ไพ่",      q: "scene=drawing&draw=A" },
   { group: "main", id: "drawing-b",  title: "กำลังสุ่ม · B รายชื่อ",   q: "scene=drawing&draw=B" },
-  { group: "main", id: "drawing-c",  title: "กำลังสุ่ม · C วงแหวน",   q: "scene=drawing&draw=C" },
   { group: "main", id: "reveal",     title: "ผู้โชคดี",               q: "scene=reveal" },
   { group: "main", id: "board",      title: "ตารางผู้ชนะ",            q: "scene=board" },
 

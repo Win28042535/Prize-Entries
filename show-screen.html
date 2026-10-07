@@ -73,7 +73,8 @@
 
   /* prize */
   .prize h2,.idle h2,.board h2{font-weight:600;font-size:150px;line-height:1.05;letter-spacing:-.01em}
-  .prize h2{margin:28px 0 22px}
+  .prize h2{margin:20px 0 22px}
+  .prize-gift{width:200px;height:200px;margin-bottom:6px;filter:drop-shadow(0 22px 26px rgba(63,111,224,.28));animation:bob 5s ease-in-out infinite}
   .prize .qty{font-size:34px;color:var(--ink-2)}
   .prize .qty b{font-weight:500;font-size:54px;color:var(--ink);margin:0 6px}
   /* same DNA as the winners-board tile: white glass, hairline border, bold ink value, blue-ink label */
@@ -91,7 +92,7 @@
   .drawing .deck{width:210px;margin:30px 0 18px}
   .count{font-size:260px;font-weight:500;line-height:1;min-height:260px;color:var(--ink)}
   .dv{display:none;flex-direction:column;align-items:center}
-  body.draw-A .dv-A,body.draw-B .dv-B,body.draw-C .dv-C{display:flex}
+  body.draw-A .dv-A,body.draw-B .dv-B{display:flex}
 
   /* B: name reel, 3 visible rows, the centre row is the pick */
   .reel{position:relative;width:1240px;height:540px;margin:34px 0 10px;overflow:hidden;
@@ -100,24 +101,13 @@
   .reel-in{position:absolute;left:0;right:0;top:0;will-change:transform}
   .reel-in div{height:180px;line-height:180px;font-size:112px;font-weight:600;white-space:nowrap;color:var(--ink-3);opacity:.55}
   .reel-in div.hit{color:var(--ink);opacity:1}
+  /* A: prize pieces flank the shuffling deck (outside its +-120px sweep) */
+  .flank{position:absolute;top:210px;width:170px;height:170px;filter:drop-shadow(0 18px 22px rgba(63,111,224,.25));animation:bob 6s ease-in-out infinite}
+  .flank.l{left:calc(50% - 480px)}
+  .flank.r{left:calc(50% + 310px);animation-delay:-3s}
+  .dv-A{position:relative}
   .dv-B .count{font-size:140px;min-height:140px}
 
-  /* C: rim-palette rings */
-  .orb{position:relative;width:640px;height:640px;margin:20px 0 10px;display:flex;align-items:center;justify-content:center}
-  .orb .count{position:relative;z-index:2;font-size:280px;min-height:0}
-  .ring{position:absolute;border-radius:50%;
-    background:conic-gradient(from 0deg,#00d4fe,#1f87e6,#113cf3,#722df4,#e63bd8,#f79319,#00d4fe);
-    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));
-    animation:spin var(--t,6s) linear infinite;transition:opacity .4s,transform .6s}
-  .ring.r1{inset:0;--t:7s}
-  .ring.r2{inset:56px;--t:4.5s;animation-direction:reverse;opacity:.8}
-  .ring.r3{inset:112px;--t:3s;opacity:.6}
-  .glow{position:absolute;inset:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(101,152,255,.25) 60%,transparent 72%)}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .orb.fast .ring.r1{--t:2.4s}.orb.fast .ring.r2{--t:1.6s}.orb.fast .ring.r3{--t:1s}
-  .orb.burst .ring{transform:scale(1.35);opacity:0}
-  .orb.burst .glow{animation:flash .5s ease-out forwards}
-  @keyframes flash{to{transform:scale(2.6);opacity:0}}
   .count.tick{animation:tick .9s cubic-bezier(.2,.8,.2,1)}
   @keyframes tick{from{transform:scale(1.35);opacity:0;color:var(--blue-ink)}to{transform:none;opacity:1}}
   .drawing .sub{font-size:30px;color:var(--ink-2);margin-top:4px}
@@ -127,6 +117,10 @@
   .redraw p{font-size:34px;color:var(--ink-2);margin-top:16px}
 
   /* reveal */
+  .drop{position:absolute;opacity:0;transform:scale(.4) translateY(36px);
+    transition:opacity .6s ease calc(var(--d) * 1s),transform .9s cubic-bezier(.2,1.3,.3,1) calc(var(--d) * 1s)}
+  .scene.on .drop{opacity:1;transform:none}
+  .drop img{display:block;width:100%;filter:drop-shadow(0 16px 20px rgba(63,111,224,.25));animation:bob 5.5s ease-in-out infinite;animation-delay:calc(var(--d) * -4s)}
   /* reveal: one centred column, no character card */
   .who{width:1400px;display:flex;flex-direction:column;align-items:center;text-align:center}
   .who .crown{width:92px;height:92px;display:block;filter:drop-shadow(0 10px 16px rgba(63,111,224,.3))}
@@ -187,7 +181,7 @@
 
   <img class="el candle" src="prize-assets/img/candle.png" alt="">
   <img class="el gold" src="prize-assets/img/gold.png" alt="">
-  <img class="el gem" src="prize-assets/img/diamond.png" alt="">
+  <img class="el gem" src="prize-assets/img/diamond-icon.webp" alt="">
 
   <div class="top">
     <img src="prize-assets/img/efinBT.png" alt="efin | BetterTrade">
@@ -202,6 +196,7 @@
   </section>
 
   <section class="scene prize" data-scene="prize">
+    <img class="prize-gift" src="prize-assets/img/gift.webp" alt="">
     <div class="k">Next Prize</div>
     <h2 id="pName"></h2>
     <div class="qty">รางวัลนี้มีทั้งหมด <b id="pQty"></b> รางวัล</div>
@@ -216,6 +211,8 @@
 
     <!-- A: shuffling deck of back cards -->
     <div class="dv dv-A">
+      <img class="flank l" src="prize-assets/img/chest.webp" alt="">
+      <img class="flank r" src="prize-assets/img/gold-bars.webp" alt="">
       <div class="deck">
         <img src="prize-assets/cards/back.webp" alt="" style="--i:0">
         <img src="prize-assets/cards/back.webp" alt="" style="--i:1">
@@ -230,14 +227,6 @@
       <div class="count"></div>
     </div>
 
-    <!-- C: energy rings around the countdown, burst at zero -->
-    <div class="dv dv-C">
-      <div class="orb" id="orb">
-        <i class="ring r1"></i><i class="ring r2"></i><i class="ring r3"></i><i class="glow"></i>
-        <div class="count"></div>
-      </div>
-    </div>
-
     <div class="sub" id="dSub"></div>
   </section>
 
@@ -248,6 +237,10 @@
   </section>
 
   <section class="scene reveal" data-scene="reveal">
+    <span class="drop" style="left:640px;top:250px;width:150px;--d:.5"><img src="prize-assets/img/gift.webp" alt=""></span>
+    <span class="drop" style="left:1140px;top:262px;width:128px;--d:.65"><img src="prize-assets/img/coin.webp" alt=""></span>
+    <span class="drop" style="left:600px;top:800px;width:124px;--d:.8"><img src="prize-assets/img/chest.webp" alt=""></span>
+    <span class="drop" style="left:1190px;top:812px;width:132px;--d:.95"><img src="prize-assets/img/gold-bars.webp" alt=""></span>
     <div class="who">
       <img class="crown" src="prize-assets/img/ICON_CROWN_PNG.png" alt="">
       <div class="lucky"><i>✦</i>ผู้โชคดี<i>✦</i></div>
@@ -282,7 +275,6 @@
   <span class="sep"></span>
   <button data-draw="A" title="V">สุ่ม A ไพ่</button>
   <button data-draw="B">สุ่ม B รายชื่อ</button>
-  <button data-draw="C">สุ่ม C วงแหวน</button>
   <span class="sep"></span>
   <button id="demoFs" title="F">เต็มจอ</button>
 </div>
@@ -323,8 +315,8 @@ const later = (fn, ms) => timers.push(setTimeout(fn, ms));
 let reelRaf = 0;
 function clearTimers(){ timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(reelRaf); }
 
-// ---- drawing style: A cards / B name reel / C rings (V cycles, ?draw=B picks) ----
-const STYLES = ["A", "B", "C"];
+// ---- drawing style: A cards / B name reel (V cycles, ?draw=B picks) ----
+const STYLES = ["A", "B"];
 let drawStyle = "A";
 function setDraw(x){
   drawStyle = STYLES.includes(x) ? x : "A";
@@ -373,14 +365,9 @@ function showPrize(st){
 function showDrawing(st, done){
   go("drawing");
   $("#dSub").textContent = `กำลังสุ่ม ${st.prize.name}`;
-  const secs = Math.max(1, st.countdown || 5), els = document.querySelectorAll(".count"), orb = $("#orb");
-  orb.classList.remove("fast", "burst");
+  const secs = Math.max(1, st.countdown || 5), els = document.querySelectorAll(".count");
   if(drawStyle === "B") startReel(st, secs * 1000);
   if(STILL){ els.forEach(el => el.textContent = Math.min(3, secs)); return; }
-  if(drawStyle === "C"){
-    later(() => orb.classList.add("fast"), Math.max(0, (secs - 2) * 1000));
-    later(() => orb.classList.add("burst"), secs * 1000 - 200);
-  }
   for(let i = 0; i < secs; i++){
     later(() => {
       els.forEach(el => { el.textContent = secs - i; el.classList.remove("tick"); void el.offsetWidth; el.classList.add("tick"); });
