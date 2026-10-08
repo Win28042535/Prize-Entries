@@ -52,15 +52,15 @@
   .wing-el.b{left:-640px;bottom:240px;width:130px;animation-delay:-4.5s}
   .wing-el.c{left:2440px;top:140px;width:110px;animation-delay:-1s}
   .wing-el.n1{left:340px;top:120px;width:120px;animation-delay:-3s}
-  .wing-el.n2{left:1825px;top:360px;width:110px;animation-delay:-5.5s}   /* between the name's right edge (~1560) and the ship (~2044), a little nearer the ship */
+  .wing-el.n2{left:1940px;top:360px;width:110px;animation-delay:-5.5s}   /* between the name's right edge (~1560) and the ship (~2274), a little nearer the ship */
   /* the logo row follows the edges of the whole 4:1 screen (same 96px margin as Mini Stage), not the 1920 core */
   body.screen-main .top{left:-604px;right:-604px}
   body.screen-main .wall.l{left:-325px}
   body.screen-main .wall.r{left:1559px}
   body.screen-main .el.candle{left:-200px;top:200px}   /* bar centred between the far gold bars (~-510) and the name's left edge (~360) */
   body.screen-main .el.chest{left:77px;bottom:70px}   /* centred between the bar chart (~-75) and the near diamond (~400) */
-  body.screen-main .el.gift{right:auto;left:1560px;top:60px;width:170px}
-  body.screen-main .ship{right:-430px;height:300px}   /* just outside the 4-column board so it never has to shrink */
+  body.screen-main .el.gift{right:auto;left:1560px;top:150px;width:170px}   /* below the corner label, which is larger on Main Stage */
+  body.screen-main .ship{right:-660px;height:300px}   /* just outside the 4 x 640 board so it never has to shrink */
   body.screen-main .el.efin{right:auto;bottom:auto;left:1680px;top:640px;width:120px}
   /* the 4-column board fills the sky, so the mid and near pieces step aside there (far pieces and the ship stay) */
   .el,.wing-el{transition:opacity .6s}
@@ -139,7 +139,6 @@
   .reel-in{position:absolute;left:0;right:0;top:0;will-change:transform}
   .reel-in div{position:absolute;left:0;right:0;height:120px;line-height:120px;font-size:100px;font-weight:700;white-space:nowrap;color:var(--ink);text-align:center;will-change:transform,opacity}
   body.screen-main .reel{height:360px;margin-top:14px;width:1000px}
-  body.screen-main .who{width:1200px}   /* long names shrink a little sooner, keeping clear of the near pieces */
   /* Main Stage is only 830 tall: drawing A and the prize scene get a little more compact / less lifted */
   body.screen-main .drawing .deck{width:170px;margin:18px 0 8px}
   body.screen-main .dv-A .count{font-size:200px;min-height:200px}
@@ -221,6 +220,43 @@
   .demo-bar button:hover{background:rgba(255,255,255,.12)}
   .demo-bar button[aria-pressed="true"]{background:#fff;color:var(--ink)}
   .demo-bar .sep{width:1px;height:20px;background:rgba(255,255,255,.25);margin:0 4px}
+
+  /* ---- Main Stage type scale (16 x 4 m at 256 px/m, canvas scale 1.23: 1 design px is about 0.48 cm of letter height).
+     Sized for viewers up to ~30 m: no text below 38 (about 18 cm), secondary lines 64 (about 31 cm),
+     small text at weight 600 so it does not thin out on LED. Headings and names keep their sizes. ---- */
+  /* level 4, chrome: corner label, small kickers, group ordinals */
+  body.screen-main .top img{height:60px}
+  body.screen-main .eyebrow{font-size:38px;gap:22px}
+  body.screen-main .eyebrow i{font-size:24px}
+  body.screen-main .eyebrow::after{width:130px}
+  body.screen-main .k{font-size:38px;gap:24px}
+  body.screen-main .k::before,body.screen-main .k::after{width:100px}
+  body.screen-main .lucky i{font-size:30px}
+  body.screen-main .group li i{font-size:38px;width:84px;font-weight:600}
+  /* level 3, labels and data */
+  body.screen-main .lucky{font-size:52px}
+  body.screen-main .rule small{font-size:44px;font-weight:600}
+  body.screen-main .rule span{font-size:76px}
+  body.screen-main .rule .num{font-size:100px}
+  body.screen-main .tile small{font-size:44px;font-weight:600}
+  body.screen-main .group header b{font-size:52px}
+  body.screen-main .group header small{font-size:44px}
+  body.screen-main .group header small em{font-size:56px}
+  /* level 2, secondary lines */
+  body.screen-main .idle p,body.screen-main .drawing .sub,body.screen-main .who .meta,body.screen-main .board .empty,body.screen-main .redraw p{font-size:64px;font-weight:700}
+  body.screen-main .prize .qty{font-size:64px}
+  body.screen-main .prize .qty b{font-size:140px}
+  /* board names: bigger, so the tiles get wider (4 x 640 + gaps = 2614, inside the 3320 canvas) */
+  body.screen-main .tile{width:640px}
+  body.screen-main .tile img{width:72px}
+  body.screen-main .tile b{font-size:56px}
+  body.screen-main .tile .rank{font-size:72px;width:104px}
+  body.screen-main .grid.ranked .tile b{font-size:60px}
+  body.screen-main .grid,body.screen-main .groups{width:2614px}
+  body.screen-main .group{max-width:none}
+  body.screen-main .group li b{font-size:56px}
+  /* reveal: a wider name column so long names shrink less */
+  body.screen-main .who{width:1500px}
 
   /* ?still: every scene in its settled state, no motion (gallery thumbnails and PNG export) */
   body.still *,body.still *::before,body.still *::after{animation:none!important;transition:none!important}
@@ -510,7 +546,8 @@ function fitBoard(){
   const scene = grid.closest(".scene");
   // free band: below the logo row, down to the ship's top (only where the board is over the ship) or the screen's bottom margin
   const bandBottom = overShip ? stage.clientHeight - ship.offsetHeight - 24 : stage.clientHeight - 24;
-  scene.style.padding = `118px 0 ${stage.clientHeight - bandBottom}px`;
+  const head = document.querySelector(".top");
+  scene.style.padding = `${head.offsetTop + head.offsetHeight + 8}px 0 ${stage.clientHeight - bandBottom}px`;
   const top = grid.offsetTop, h = grid.offsetHeight;
   const limit = bandBottom - 6;
   if(top + h > limit) grid.style.transform = `scale(${Math.max(.5, (limit - top) / h).toFixed(3)})`;
