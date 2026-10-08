@@ -17,5 +17,4 @@ window.SCENES = [
   { group: "case", id: "board-12",         title: "ตาราง A · ครบ 12 คน + ชื่อยาว", q: "scene=board&n=12&case=long" },
   { group: "case", id: "board-12-b",       title: "ตาราง B · ครบ 12 คน + ชื่อยาว", q: "scene=board&n=12&case=long&board=B" },
   { group: "case", id: "board-12-c",       title: "ตาราง C · ครบ 12 คน + ชื่อยาว", q: "scene=board&n=12&case=long&board=C" },
-  { group: "case", id: "board-0",          title: "ตารางผู้ชนะ · ยังไม่มีผู้ชนะ",    q: "scene=board&n=0" },
 ];
