@@ -192,6 +192,20 @@
   .group{flex:1 1 0;min-width:0;max-width:none;text-align:left;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
   .group header{padding:14px 20px 12px;border-bottom:1px solid var(--line)}
   .group header b{display:block;font-size:40px;font-weight:700;line-height:1.2;color:var(--blue-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* prize name: the BetterTrade 2026 title highlight (.bt-title-highlight): rim-palette gradient clipped to the text,
+     200% wide and drifting back and forth every 3s */
+  .group header b,.grid:not(.ranked) .tile small,.tile .rank,.prize .qty b,.who .pline,.drawing .sub .hl{color:transparent;-webkit-text-fill-color:transparent;
+    background:linear-gradient(90deg,#00D4FE 0%,#1F87E6 20%,#113CF3 35%,#722DF4 50%,#E63BD8 65%,#F79319 80%) 0% 50%/200% 100%;
+    -webkit-background-clip:text;background-clip:text;animation:spectrum-flow 3s ease-in-out infinite alternate}
+  /* the gradient spans the text itself, not the whole card width */
+  .group header b,.grid:not(.ranked) .tile small{display:inline-block;max-width:100%;vertical-align:top;padding-right:4px}
+  .group header b{font-weight:600}
+  .grid:not(.ranked) .tile small{font-weight:600}
+  /* title highlight also on: prize count (prize scene), prize name (reveal), prize name in "กำลังสุ่ม …" (drawing) */
+  .prize .qty b,.who .pline,.drawing .sub .hl{padding:0 4px}
+  @keyframes spectrum-flow{from{background-position:0% 50%}to{background-position:100% 100%}}
+  /* the gradient spans the text itself (inline-block); still frames show it mid-flow: blue, violet, pink */
+  body.still :is(.group header b,.grid:not(.ranked) .tile small,.tile .rank,.prize .qty b,.who .pline,.drawing .sub .hl){background-position:50% 50%}
   .group header small{display:block;margin-top:2px;font-size:28px;font-weight:700;color:var(--ink-2)}
   .group header small em{font-style:normal;font-size:36px;color:var(--ink);margin:0 4px}
   .group ol{list-style:none;padding:8px 20px 14px}
@@ -199,7 +213,7 @@
   /* a prize with many winners: wider, names in two columns */
   .group.many{flex-grow:2;max-width:1080px}
   .group.many ol{columns:2;column-gap:28px}
-  .group li i{flex:none;width:58px;font-style:normal;font-size:24px;font-weight:500;color:var(--blue-ink)}
+  .group li i{flex:none;width:52px;font-style:normal;font-size:40px;font-weight:700;line-height:1;color:var(--blue-ink);font-variant-numeric:lining-nums}
   .group li b{min-width:0;flex:1;font-size:36px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   #confetti{position:absolute;inset:0;z-index:3;pointer-events:none}
@@ -234,7 +248,7 @@
   body.screen-main .k{font-size:38px;gap:24px}
   body.screen-main .k::before,body.screen-main .k::after{width:100px}
   body.screen-main .lucky i{font-size:30px}
-  body.screen-main .group li i{font-size:38px;width:84px;font-weight:600}
+  body.screen-main .group li i{font-size:64px;width:84px;font-weight:700}
   /* level 3, labels and data */
   body.screen-main .lucky{font-size:52px}
   body.screen-main .rule small{font-size:44px;font-weight:600}
@@ -511,7 +525,7 @@ function showPrize(st){
 // countdown while the deck shuffles; no other names are shown on screen
 function showDrawing(st, done){
   go("drawing");
-  $("#dSub").textContent = `กำลังสุ่ม ${st.prize.name}`;
+  $("#dSub").innerHTML = `กำลังสุ่ม <span class="hl">${esc(st.prize.name)}</span>`;
   const secs = Math.max(1, st.countdown || 5), els = document.querySelectorAll(".count");
   if(drawStyle === "B") startReel(st, secs * 1000);
   if(STILL){ els.forEach(el => el.textContent = Math.min(3, secs)); return; }
@@ -581,7 +595,7 @@ function showBoard(st){
       const many = g.people.length > (screen === "main" ? 3 : 5);
       const shown = screen === "main" ? g.people.slice(many ? -6 : -3) : g.people;
       return `<section class="group${many ? " many" : ""}"><header><b>${esc(g.prize)}</b><small>ผู้โชคดี<em>${g.people.length}</em>${qty ? `จาก ${qty} ` : ""}รางวัล</small></header>
-        <ol>${shown.map(w => `<li><i>ที่ ${w.no}</i><b>${esc(nm(w.n))}</b></li>`).join("")}</ol></section>`;
+        <ol>${shown.map(w => `<li><i>${w.no}</i><b>${esc(nm(w.n))}</b></li>`).join("")}</ol></section>`;
     }).join("");
   } else {
     grid.className = boardStyle === "B" ? "grid ranked" : "grid";
