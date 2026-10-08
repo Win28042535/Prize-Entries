@@ -168,8 +168,9 @@
   /* board */
   /* the ship keeps one size and place everywhere, so the board is compact and top-anchored: its grid ends above the ship's top (fitBoard checks it) */
   /* the block is centred in the free band between the logo row and the ship (padding set by fitBoard) */
-  /* safe center: a block taller than the band starts under the logo row (fitBoard then shrinks the grid) instead of overflowing upward */
-  .scene.board{justify-content:safe center;padding:118px 0 24px}
+  /* the block always starts at the same height as with a full 12-winner board, whatever the count or style;
+     it grows downward and fitBoard shrinks the grid if it would reach the ship */
+  .scene.board{justify-content:flex-start;padding:118px 0 24px}
   .board h2{font-size:100px;margin:4px 0 10px}
   /* 3 columns x up to 4 rows (12 winners); names and prizes are sized for reading from far away */
   .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;max-width:1596px;transform-origin:top center}
@@ -549,7 +550,9 @@ function fitBoard(){
   // free band: below the logo row, down to the ship's top (only where the board is over the ship) or the screen's bottom margin
   const bandBottom = overShip ? stage.clientHeight - ship.offsetHeight - 24 : stage.clientHeight - 24;
   const head = document.querySelector(".top");
-  scene.style.padding = `${head.offsetTop + head.offsetHeight + 8}px 0 ${stage.clientHeight - bandBottom}px`;
+  // kicker top with a full 12-winner board: Mini 152, Main just under the (taller) logo row
+  const MINI_TOP = 152;
+  scene.style.padding = `${screen === "mini" ? MINI_TOP : head.offsetTop + head.offsetHeight + 8}px 0 ${stage.clientHeight - bandBottom}px`;
   const top = grid.offsetTop, h = grid.offsetHeight;
   const limit = bandBottom - 6;
   if(top + h > limit) grid.style.transform = `scale(${Math.max(.5, (limit - top) / h).toFixed(3)})`;
