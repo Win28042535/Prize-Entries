@@ -60,7 +60,7 @@
   body.screen-main .el.candle{left:-200px;top:200px}   /* bar centred between the far gold bars (~-510) and the name's left edge (~360) */
   body.screen-main .el.chest{left:77px;bottom:70px}   /* centred between the bar chart (~-75) and the near diamond (~400) */
   body.screen-main .el.gift{right:auto;left:1560px;top:150px;width:170px}   /* below the corner label, which is larger on Main Stage */
-  body.screen-main .ship{right:-660px;height:300px}   /* just outside the 4 x 640 board so it never has to shrink */
+  body.screen-main .ship{right:-660px;height:300px}   /* right zone, clear of the board */
   body.screen-main .el.efin{right:auto;bottom:auto;left:1680px;top:640px;width:120px}
   /* the 4-column board fills the sky, so the mid and near pieces step aside there (far pieces and the ship stay) */
   .el,.wing-el{transition:opacity .6s}
@@ -168,7 +168,8 @@
   /* board */
   /* the ship keeps one size and place everywhere, so the board is compact and top-anchored: its grid ends above the ship's top (fitBoard checks it) */
   /* the block is centred in the free band between the logo row and the ship (padding set by fitBoard) */
-  .scene.board{justify-content:center;padding:118px 0 24px}
+  /* safe center: a block taller than the band starts under the logo row (fitBoard then shrinks the grid) instead of overflowing upward */
+  .scene.board{justify-content:safe center;padding:118px 0 24px}
   .board h2{font-size:100px;margin:4px 0 10px}
   /* 3 columns x up to 4 rows (12 winners); names and prizes are sized for reading from far away */
   .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;max-width:1596px;transform-origin:top center}
@@ -187,7 +188,7 @@
   .grid.ranked .tile b{font-size:44px;font-weight:700}
   /* C: one glass column per prize, winners listed under the prize name */
   .groups{display:flex;gap:18px;justify-content:center;align-items:flex-start;width:1596px}
-  .group{flex:1 1 0;min-width:0;max-width:540px;text-align:left;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
+  .group{flex:1 1 0;min-width:0;max-width:none;text-align:left;background:rgba(255,255,255,.82);border:1px solid var(--line);backdrop-filter:blur(6px)}
   .group header{padding:14px 20px 12px;border-bottom:1px solid var(--line)}
   .group header b{display:block;font-size:40px;font-weight:700;line-height:1.2;color:var(--blue-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .group header small{display:block;margin-top:2px;font-size:28px;font-weight:700;color:var(--ink-2)}
@@ -246,13 +247,14 @@
   body.screen-main .idle p,body.screen-main .drawing .sub,body.screen-main .who .meta,body.screen-main .board .empty,body.screen-main .redraw p{font-size:64px;font-weight:700}
   body.screen-main .prize .qty{font-size:64px}
   body.screen-main .prize .qty b{font-size:140px}
-  /* board names: bigger, so the tiles get wider (4 x 640 + gaps = 2614, inside the 3320 canvas) */
-  body.screen-main .tile{width:640px}
+  /* board names: bigger, so the tiles get wider (3 x 700 per row) */
+  body.screen-main .tile{width:700px}
   body.screen-main .tile img{width:72px}
   body.screen-main .tile b{font-size:56px}
   body.screen-main .tile .rank{font-size:72px;width:104px}
   body.screen-main .grid.ranked .tile b{font-size:60px}
-  body.screen-main .grid,body.screen-main .groups{width:2614px}
+  /* Main Stage: at most 3 tiles / prize groups per row (3 x 700 + 2 x 18 = 2136) */
+  body.screen-main .grid,body.screen-main .groups{width:2136px}
   body.screen-main .group{max-width:none}
   body.screen-main .group li b{font-size:56px}
   /* reveal: a wider name column so long names shrink less */
@@ -561,7 +563,7 @@ function showBoard(st){
     grid.className = "";
     grid.innerHTML = `<p class="empty">ยังไม่มีผู้ได้รับรางวัล</p>`;
   } else if(boardStyle === "C"){
-    // group by prize in the order prizes were first drawn; keep the latest 4 groups
+    // group by prize in the order prizes were first drawn; keep the latest 3 groups (one row, at most 3 per row on both screens)
     const groups = [];
     for(const w of list){
       let g = groups.find(x => x.prize === w.prize);
@@ -569,7 +571,7 @@ function showBoard(st){
       g.people.push(w);
     }
     grid.className = "groups";
-    grid.innerHTML = groups.slice(-4).map(g => {
+    grid.innerHTML = groups.slice(-3).map(g => {
       const qty = (D.PRIZES.find(p => p.name === g.prize) || {}).qty;
       return `<section class="group${g.people.length > 5 ? " many" : ""}"><header><b>${esc(g.prize)}</b><small>ผู้โชคดี<em>${g.people.length}</em>${qty ? `จาก ${qty} ` : ""}รางวัล</small></header>
         <ol>${g.people.map(w => `<li><i>ที่ ${w.no}</i><b>${esc(nm(w.n))}</b></li>`).join("")}</ol></section>`;
