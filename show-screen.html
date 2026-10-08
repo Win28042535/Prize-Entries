@@ -135,7 +135,11 @@
   /* B: name wheel. 5 rows visible; the row on the centre band is full size and black, the others shrink and fade with distance */
   .reel{position:relative;width:1240px;height:600px;margin:24px 0 6px;overflow:hidden;
     -webkit-mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent)}
-  .reel-band{position:absolute;left:0;right:0;top:calc(50% - 60px);height:120px;border-block:2px solid var(--blue);background:var(--blue-tint)}
+  .reel-band{position:absolute;left:0;right:0;top:calc(50% - 60px);height:120px;background:var(--blue-tint)}
+  /* top and bottom rules: the brand rim gradient, static, 2px (like the site's loader line) */
+  .reel-band::before,.reel-band::after{content:"";position:absolute;left:0;right:0;height:2px;background:var(--rim)}
+  .reel-band::before{top:0}
+  .reel-band::after{bottom:0}
   .reel-in{position:absolute;left:0;right:0;top:0;will-change:transform}
   .reel-in div{position:absolute;left:0;right:0;height:120px;line-height:120px;font-size:100px;font-weight:700;white-space:nowrap;color:var(--ink);text-align:center;will-change:transform,opacity}
   body.screen-main .reel{height:360px;margin-top:14px;width:1000px}
@@ -226,13 +230,13 @@
   body.is-auto .demo-badge{display:block}
 
 
-  /* demo controls: outside the scaled stage, shown on mouse move */
-  .demo-bar{position:fixed;left:50%;bottom:18px;transform:translate(-50%,20px);z-index:20;display:none;gap:6px;align-items:center;padding:6px;
-    max-width:calc(100% - 16px);overflow-x:auto;scrollbar-width:none;
-    border-radius:999px;background:rgba(17,19,24,.82);backdrop-filter:blur(8px);opacity:0;transition:opacity .3s,transform .3s;font-family:var(--sans)}
+  /* control bar: outside the scaled stage; always shown (bar-pin) or shown while the mouse moves (bar-on) */
+  .demo-bar{position:fixed;left:0;right:0;margin:0 auto;width:max-content;bottom:18px;transform:translateY(20px);z-index:20;display:none;gap:6px;align-items:center;padding:6px;
+    max-width:calc(100% - 16px);flex-wrap:wrap;justify-content:center;
+    border-radius:28px;background:rgba(17,19,24,.82);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;font-family:var(--sans)}
   body.is-demo .demo-bar{display:flex}
-  body.bar-on .demo-bar,body.bar-pin .demo-bar{opacity:1;transform:translate(-50%,0)}
-  .demo-bar button{font:inherit;font-size:14px;color:#fff;background:none;border:0;cursor:pointer;height:44px;padding:0 14px;border-radius:999px;white-space:nowrap;flex:none}
+  body.bar-on .demo-bar,body.bar-pin .demo-bar{opacity:1;transform:none;pointer-events:auto}
+  .demo-bar button{font:inherit;font-size:14px;color:#fff;background:none;border:0;cursor:pointer;height:44px;padding:0 11px;border-radius:999px;white-space:nowrap;flex:none}
   .demo-bar button:hover{background:rgba(255,255,255,.12)}
   .demo-bar button[aria-pressed="true"]{background:#fff;color:var(--ink)}
   .demo-bar .sep{width:1px;height:20px;background:rgba(255,255,255,.25);margin:0 4px}
@@ -398,6 +402,7 @@
   <button data-screen="main">Main Stage 16×4</button>
   <span class="sep"></span>
   <button id="demoFs" title="F">เต็มจอ</button>
+  <button id="barHide" title="H" aria-label="ซ่อนแถบ (กด H เพื่อแสดงอีกครั้ง)">ซ่อนแถบ</button>
 </div>
 
 <script src="prize-assets/prize-data.js"></script>
@@ -690,7 +695,9 @@ setBoard(params.get("board"));
   const auto = params.has("demo") && !STILL;
   if(!STILL) document.body.classList.add("is-demo");
   if(auto) document.body.classList.add("is-auto");
-  if(params.has("bar") && !STILL) document.body.classList.add("bar-pin");
+  // the control bar stays visible by default; H (or the hide button) switches to auto-hide, where it shows while the mouse moves.
+  // ?bar=0 starts in auto-hide mode, which is the one to use on the stage screen.
+  if(!STILL && params.get("bar") !== "0") document.body.classList.add("bar-pin");
   const STEPS = [["idle", 4000], ["prize", 5000], ["drawing", 13000], ["board", 6000]];
   let seq = 1000, prizeIdx = Math.max(0, Math.min(D.PRIZES.length - 1, (+params.get("prize") || 1) - 1)),
       winner = null, list = [], step = 0, loop = 0, rounds = 0, paused = !auto, redrawFlag = false;
@@ -769,13 +776,13 @@ setBoard(params.get("board"));
     else if(k === "v" || k === "V") cycleDraw();
     else if(k === "s" || k === "S") setScreen(screen === "mini" ? "main" : "mini");
     else if(k === "t" || k === "T") setBoard(BOARDS[(BOARDS.indexOf(boardStyle) + 1) % BOARDS.length]);
-    else if(k === "h" || k === "H") document.body.classList.toggle("bar-pin");
+    else if(k === "h" || k === "H"){ document.body.classList.toggle("bar-pin"); wake(); }
   });
 
   // controls: H pins the bar; with ?demo or ?bar they also appear while the mouse moves
   let hide = 0;
   const wake = () => { document.body.classList.add("bar-on"); clearTimeout(hide); hide = setTimeout(() => document.body.classList.remove("bar-on"), 2500); };
-  if(auto || params.has("bar")){ addEventListener("mousemove", wake); addEventListener("touchstart", wake); }
+  if(!STILL){ addEventListener("mousemove", wake); addEventListener("touchstart", wake); }
   $("#demoBar").addEventListener("dblclick", e => e.stopPropagation());
   $("#demoBar").addEventListener("click", e => {
     const b = e.target.closest("[data-demo]");
@@ -790,6 +797,7 @@ setBoard(params.get("board"));
     if(e.target.closest("#prizeNext")) nextPrize(1);
     if(e.target.closest("#redrawBtn")) redraw();
     if(e.target.closest("#demoFs")) toggleFs();
+    if(e.target.closest("#barHide")){ document.body.classList.remove("bar-pin"); document.body.classList.remove("bar-on"); }
   });
   if(!STILL) wake();
   const first = params.get("scene") || "idle";

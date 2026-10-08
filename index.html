@@ -47,7 +47,16 @@
   .keys dt{flex:none;min-width:76px}
   kbd{display:inline-block;font:inherit;font-size:14px;font-weight:600;padding:2px 8px;border-radius:6px;border:1px solid var(--line);border-bottom-width:2px;background:var(--bg)}
   .keys dd{color:var(--ink-2)}
-  @media (max-width:600px){.wrap{padding:24px 16px 48px}h1{font-size:34px}.grid{grid-template-columns:1fr}}
+  /* Go to top: appears once the page is scrolled */
+  .to-top{position:fixed;right:24px;bottom:24px;z-index:30;display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 20px 0 16px;
+    border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:#fff;font:inherit;font-size:16px;font-weight:500;cursor:pointer;
+    box-shadow:0 8px 24px rgba(17,19,24,.22);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s}
+  .to-top.on{opacity:1;transform:none;pointer-events:auto}
+  .to-top:hover{background:#2a2f3a}
+  .to-top:focus-visible{outline:3px solid var(--blue-ink);outline-offset:3px}
+  .to-top svg{width:18px;height:18px;flex:none}
+  @media (prefers-reduced-motion:reduce){.to-top{transition:none}}
+  @media (max-width:600px){.to-top{right:16px;bottom:16px}.wrap{padding:24px 16px 48px}h1{font-size:34px}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -75,7 +84,7 @@
       <div><dt><kbd>V</kbd></dt><dd>สลับสไตล์การสุ่ม A / B</dd></div>
       <div><dt><kbd>S</kbd></dt><dd>สลับจอ Mini Stage / Main Stage</dd></div>
       <div><dt><kbd>T</kbd></dt><dd>สลับแบบตารางผู้ชนะ A / B / C</dd></div>
-      <div><dt><kbd>H</kbd></dt><dd>โชว์หรือซ่อนแถบปุ่ม</dd></div>
+      <div><dt><kbd>H</kbd></dt><dd>แถบปุ่มด้านล่างแสดงตลอดโดยค่าเริ่มต้น กดเพื่อซ่อน (ซ่อนแล้วจะโผล่เมื่อขยับเมาส์) หรือเปิดด้วย <code>?bar=0</code></dd></div>
       <div><dt><kbd>F</kbd></dt><dd>เต็มจอ</dd></div>
       <div><dt><kbd>G</kbd></dt><dd>เส้น safe area 16:9</dd></div>
     </dl>
@@ -111,6 +120,17 @@ document.getElementById("sets").innerHTML = SCREENS.map(set => `<section class="
 </section>`).join("");
 // #wide (older links) jumps to the Main Stage section
 if(location.hash === "#wide") document.getElementById("set-main").scrollIntoView();
+</script>
+<button class="to-top" id="toTop" type="button" aria-label="กลับขึ้นบนสุด">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>ขึ้นบนสุด
+</button>
+<script>
+{
+  const btn = document.getElementById("toTop");
+  const sync = () => btn.classList.toggle("on", scrollY > 480);
+  addEventListener("scroll", sync, { passive: true }); sync();
+  btn.addEventListener("click", () => scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
+}
 </script>
 </body>
 </html>
