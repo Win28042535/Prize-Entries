@@ -560,7 +560,8 @@ function fitBoard(){
 
 function showBoard(st){
   lastBoard = st;
-  const list = st.winners.slice(-12), grid = $("#grid");
+  // at most 3 rows of 3 on Main Stage (latest 9), 4 rows of 3 on Mini Stage (latest 12)
+  const list = st.winners.slice(screen === "main" ? -9 : -12), grid = $("#grid");
   const label = w => `${esc(w.prize)} ที่ ${w.no}`;
   if(!list.length){
     grid.className = "";
@@ -568,7 +569,7 @@ function showBoard(st){
   } else if(boardStyle === "C"){
     // group by prize in the order prizes were first drawn; keep the latest 3 groups (one row, at most 3 per row on both screens)
     const groups = [];
-    for(const w of list){
+    for(const w of st.winners.slice(-12)){   // C counts from the full recent list, not the 9 tiles A/B show on Main Stage
       let g = groups.find(x => x.prize === w.prize);
       if(!g) groups.push(g = { prize: w.prize, people: [] });
       g.people.push(w);
@@ -576,8 +577,11 @@ function showBoard(st){
     grid.className = "groups";
     grid.innerHTML = groups.slice(-3).map(g => {
       const qty = (D.PRIZES.find(p => p.name === g.prize) || {}).qty;
-      return `<section class="group${g.people.length > 5 ? " many" : ""}"><header><b>${esc(g.prize)}</b><small>ผู้โชคดี<em>${g.people.length}</em>${qty ? `จาก ${qty} ` : ""}รางวัล</small></header>
-        <ol>${g.people.map(w => `<li><i>ที่ ${w.no}</i><b>${esc(nm(w.n))}</b></li>`).join("")}</ol></section>`;
+      // Main Stage: at most 3 rows of names per prize (two columns of 3 when needed, latest names); Mini: one column up to 5, then two
+      const many = g.people.length > (screen === "main" ? 3 : 5);
+      const shown = screen === "main" ? g.people.slice(many ? -6 : -3) : g.people;
+      return `<section class="group${many ? " many" : ""}"><header><b>${esc(g.prize)}</b><small>ผู้โชคดี<em>${g.people.length}</em>${qty ? `จาก ${qty} ` : ""}รางวัล</small></header>
+        <ol>${shown.map(w => `<li><i>ที่ ${w.no}</i><b>${esc(nm(w.n))}</b></li>`).join("")}</ol></section>`;
     }).join("");
   } else {
     grid.className = boardStyle === "B" ? "grid ranked" : "grid";
