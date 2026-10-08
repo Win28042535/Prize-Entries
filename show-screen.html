@@ -194,18 +194,18 @@
   .group header b{display:block;font-size:40px;font-weight:700;line-height:1.2;color:var(--blue-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   /* prize name: the BetterTrade 2026 title highlight (.bt-title-highlight): rim-palette gradient clipped to the text,
      200% wide and drifting back and forth every 3s */
-  .group header b,.grid:not(.ranked) .tile small,.tile .rank,.prize .qty b,.who .pline,.drawing .sub .hl{color:transparent;-webkit-text-fill-color:transparent;
+  .group header b,.grid:not(.ranked) .tile small,.tile .rank,.prize .qty b,.who .pline,.drawing .sub .hl,.idle p{color:transparent;-webkit-text-fill-color:transparent;
     background:linear-gradient(90deg,#00D4FE 0%,#1F87E6 20%,#113CF3 35%,#722DF4 50%,#E63BD8 65%,#F79319 80%) 0% 50%/200% 100%;
     -webkit-background-clip:text;background-clip:text;animation:spectrum-flow 3s ease-in-out infinite alternate}
   /* the gradient spans the text itself, not the whole card width */
   .group header b,.grid:not(.ranked) .tile small{display:inline-block;max-width:100%;vertical-align:top;padding-right:4px}
   .group header b{font-weight:600}
   .grid:not(.ranked) .tile small{font-weight:600}
-  /* title highlight also on: prize count (prize scene), prize name (reveal), prize name in "กำลังสุ่ม …" (drawing) */
-  .prize .qty b,.who .pline,.drawing .sub .hl{padding:0 4px}
+  /* title highlight also on: idle subtitle, prize count (prize scene), prize name (reveal), prize name in "กำลังสุ่ม …" (drawing) */
+  .prize .qty b,.who .pline,.drawing .sub .hl,.idle p{padding:0 4px}
   @keyframes spectrum-flow{from{background-position:0% 50%}to{background-position:100% 100%}}
   /* the gradient spans the text itself (inline-block); still frames show it mid-flow: blue, violet, pink */
-  body.still :is(.group header b,.grid:not(.ranked) .tile small,.tile .rank,.prize .qty b,.who .pline,.drawing .sub .hl){background-position:50% 50%}
+  body.still :is(.group header b,.grid:not(.ranked) .tile small,.tile .rank,.prize .qty b,.who .pline,.drawing .sub .hl,.idle p){background-position:50% 50%}
   .group header small{display:block;margin-top:2px;font-size:28px;font-weight:700;color:var(--ink-2)}
   .group header small em{font-style:normal;font-size:36px;color:var(--ink);margin:0 4px}
   .group ol{list-style:none;padding:8px 20px 14px}
