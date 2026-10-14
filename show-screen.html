@@ -65,7 +65,7 @@
   body.screen-main .ship{right:-660px;height:300px}   /* right zone, clear of the board */
   body.screen-main .el.efin{right:auto;bottom:auto;left:1680px;top:640px;width:120px}
   /* the 4-column board fills the sky, so the mid and near pieces step aside there (far pieces and the ship stay) */
-  .el,.wing-el{transition:opacity .6s}
+  .el,.wing-el{transition:opacity .6s,scale .8s ease,rotate .8s ease}   /* size and tilt ease in and out of the depth treatment */
   body.screen-main #stage[data-scene="board"] :is(.el.candle,.el.chest,.el.gift,.el.efin,.wing-el.n1,.wing-el.n2){opacity:0}
   /* ---- KV backdrop: sky seen between two white walls (key visual), layered so each part can move ---- */
   .sky{position:absolute;top:0;left:-6%;width:112%;height:100%;background:url("prize-assets/img/kv-sky.webp") center/cover no-repeat;
@@ -114,6 +114,8 @@
   /* prize */
   .prize h2,.idle h2,.board h2{font-weight:600;font-size:150px;line-height:1.05;letter-spacing:-.01em}
   .prize{padding-bottom:90px}   /* optical centre sits a little above the middle */
+  /* Mini Stage: idle and reveal sit at the same optical centre as the prize scene (about 45 above the middle) */
+  body.screen-mini :is(.scene.idle,.scene.reveal){padding-bottom:90px}
   .prize h2{margin:20px 0 22px}
   .prize .qty{font-size:46px;font-weight:700;color:var(--ink-2);display:flex;align-items:baseline;justify-content:center;gap:14px}
   .prize .qty b{font-weight:700;font-size:110px;line-height:1;color:var(--ink)}
@@ -281,6 +283,45 @@
   /* reveal: a wider name column so long names shrink less */
   body.screen-main .who{width:1500px}
 
+  /* ---- depth treatment (every scene, both screens), after the key-visual video:
+     one light from the upper left, so every piece casts a soft grey shadow down-right onto the walls and wings only
+     (the .shadows layer is masked to those surfaces; pieces over the sky cast none), pieces are sized by depth
+     (near > mid > far, about 2.5 : 1), each bobs by ~10% of its own size, and its shadow bobs at 40% of that.
+     Sizes, tilts and shadow offsets are set per piece by applyDepth() in the script. ---- */
+  .shadows{position:absolute;top:0;bottom:0;left:-1400px;width:4720px;pointer-events:none;opacity:0;transition:opacity .6s;
+    --ml:1275px;--mr:2759px;--wl:0px;--wr:4720px;
+    -webkit-mask:url("prize-assets/img/kv-wall-l.webp") var(--ml) 0/687px 1600px no-repeat,url("prize-assets/img/kv-wall-r.webp") var(--mr) 0/716px 1600px no-repeat,
+      linear-gradient(#000,#000) 0 0/var(--wl) 100% no-repeat,linear-gradient(#000,#000) var(--wr) 0/100% 100% no-repeat;
+    mask:url("prize-assets/img/kv-wall-l.webp") var(--ml) 0/687px 1600px no-repeat,url("prize-assets/img/kv-wall-r.webp") var(--mr) 0/716px 1600px no-repeat,
+      linear-gradient(#000,#000) 0 0/var(--wl) 100% no-repeat,linear-gradient(#000,#000) var(--wr) 0/100% 100% no-repeat}
+  /* Main Stage: walls sit 200px further apart, and the wings (left of -323, right of 2273) are wall surface too */
+  body.screen-main .shadows{--ml:1075px;--mr:2959px;--wl:1077px;--wr:3673px}
+  #stage.depth .shadows{opacity:1}
+  /* a shadow is the piece's own silhouette, blacked out and blurred, moved by the same CSS as the piece (+1400px for the layer) */
+  .shadows .cast{margin:0 1400px;filter:brightness(0) blur(var(--blur,10px)) opacity(var(--op,.25));scale:var(--s,1);rotate:var(--r,0deg);
+    translate:var(--dx,0px) var(--dx,0px);animation-name:castbob;animation-duration:var(--dur,6s)}
+  @keyframes castbob{50%{transform:translateY(calc(-.4 * var(--amp,18px)))}}
+  #stage.depth :is(#core > .el,#core > .wing-el){filter:none;scale:var(--s,1);rotate:var(--r,0deg);animation-name:bobz;animation-duration:var(--dur,6s)}
+  @keyframes bobz{50%{transform:translateY(calc(-1 * var(--amp,18px))) rotate(-2deg)}}
+  /* the small heart only appears with the depth treatment, sitting on the ship's open book */
+  .el.s1{opacity:0;width:76px;right:252px;bottom:214px;animation-delay:-2.5s}
+  body.screen-main .el.s1{right:auto;bottom:auto;left:2250px;top:500px;width:80px}
+  #stage.depth .el.s1{opacity:1}
+  /* Mini Stage: the efin symbol tucks against the ship's hull, like the pieces round the ship in the key visual */
+  body.screen-mini #stage.depth .el.efin{right:280px;bottom:77px}
+  /* Main Stage: the gift sits a little lower and right so it clears the corner label and long winner names once it is larger */
+  body.screen-main #stage.depth .el.gift{top:140px;left:1730px}   /* right of where a very long winner name ends (~1720) */
+  /* Mini Stage: the larger gift steps down, clear of the corner label */
+  body.screen-mini #stage.depth .el.gift{top:140px}
+  body.screen-mini #stage.depth[data-scene="board"] .el.gift{top:104px}
+  body.screen-mini #stage.depth[data-scene="board"] .el.candle{left:-25px}
+  /* drifting sparkle dust in front of the backdrop */
+  .dust{position:absolute;top:0;bottom:0;left:-1400px;width:4720px;pointer-events:none;opacity:0;transition:opacity .6s}
+  #stage.depth .dust{opacity:1}
+  .dust i{position:absolute;width:var(--d);height:var(--d);border-radius:50%;background:#fff;box-shadow:0 0 6px 1px rgba(255,255,255,.9);
+    opacity:.2;animation:twinkle var(--t) ease-in-out infinite alternate;animation-delay:var(--dl)}
+  @keyframes twinkle{to{opacity:.95;transform:translateY(-8px)}}
+
   /* ?still: every scene in its settled state, no motion (gallery thumbnails and PNG export) */
   body.still *,body.still *::before,body.still *::after{animation:none!important;transition:none!important}
 
@@ -292,20 +333,23 @@
 <div id="stage">
 <div id="core">
   <div class="wing l"></div><div class="wing r"></div>
-  <img class="wing-el b" src="prize-assets/img/gold-bars.webp" alt="">
-  <img class="wing-el c" src="prize-assets/img/compass.webp" alt="">
   <div class="sky"></div>
   <img class="wall l" src="prize-assets/img/kv-wall-l.webp" alt="">
   <img class="wall r" src="prize-assets/img/kv-wall-r.webp" alt="">
   <div class="seam l"></div><div class="seam r"></div>
   <div class="floor"></div>
+  <div class="shadows" aria-hidden="true"></div>
+  <img class="wing-el b" src="prize-assets/img/gold-bars.webp" alt="">
+  <img class="wing-el c" src="prize-assets/img/compass.webp" alt="">
   <div class="halo"></div>
+  <div class="dust" aria-hidden="true"></div>
   <img class="ship" src="prize-assets/img/kv-ship.webp" alt="">
   <img class="el efin" src="prize-assets/img/efin-symbol.webp" alt="">
 
   <img class="el candle" src="prize-assets/img/candle.png" alt="">
   <img class="el chest" src="prize-assets/img/chest.webp" alt="">
   <img class="el gift" src="prize-assets/img/gift.webp" alt="">
+  <img class="el s1" src="prize-assets/img/heart.webp" alt="">
   <img class="wing-el n1" src="prize-assets/img/diamond-icon.webp" alt="">
   <img class="wing-el n2" src="prize-assets/img/coin.webp" alt="">
 
@@ -441,6 +485,7 @@ function setScreen(x){
   document.querySelectorAll("#demoBar [data-screen]").forEach(b => b.setAttribute("aria-pressed", b.dataset.screen === screen));
   fit();
   stage.dataset.sized = "1";
+  if(window.depthReady) applyDepth();
   if(!first && typeof lastBoard !== "undefined" && lastBoard && stage.dataset.scene === "board") showBoard(lastBoard);
 }
 addEventListener("resize", fit);
@@ -513,8 +558,57 @@ function startReel(st, dur){
   reelRaf = requestAnimationFrame(step);
 }
 
+// ---- depth treatment: every scene on both screens. See the .shadows CSS for the idea. ----
+const DEPTH_SCENES = new Set(["idle", "prize", "drawing", "redraw", "reveal", "board"]);   // every scene now
+// per screen, per piece (its second class): [layer, scale, tilt in degrees, visible share of the image box (default 1)]
+const DEPTH = {
+  mini: { candle: ["near", 1.25, 8, .55], chest: ["mid", 1.3, -6], gift: ["mid", 1.08, 7], efin: ["far", .8, -14], s1: ["far", 1, 14] },
+  main: { candle: ["mid", 1.15, 6, .55], chest: ["mid", 1.3, -6], gift: ["near", 1, 8], efin: ["near", 1.6, -10], n1: ["near", 1.45, -8],
+          n2: ["near", 1.6, 10], b: ["far", .85, -12], c: ["far", .85, 0], s1: ["far", 1, 14] },
+};
+// per screen and scene: entries that replace the ones above (Mini board: the gift and candle stay smaller, clear of the cards and the corner label)
+const DEPTH_SCENE = { mini: { board: { gift: ["mid", .95, 4], candle: ["near", 1.05, 8, .55] } } };
+// k: shadow offset as a share of the piece's size (further from the wall = longer, softer, lighter); amp: bob as a share of its size
+const LAYER = {
+  near: { k: .55, blur: .20, op: .09, amp: .12, dur: 6 },
+  mid:  { k: .40, blur: .15, op: .12, amp: .10, dur: 6 },
+  far:  { k: .26, blur: .10, op: .15, amp: .08, dur: 4.2 },
+};
+const castLayer = $(".shadows");
+const pieces = [...document.querySelectorAll("#core > .el, #core > .wing-el, #core > .ship")].map(p => {
+  const c = p.cloneNode(); c.classList.add("cast"); c.alt = ""; c.setAttribute("aria-hidden", "true");
+  castLayer.appendChild(c);
+  return { p, c, key: p.classList[1] || "ship" };
+});
+function applyDepth(){
+  const on = DEPTH_SCENES.has(stage.dataset.scene);
+  stage.classList.toggle("depth", on);
+  for(const { p, c, key } of pieces){
+    const cfg = on && ((DEPTH_SCENE[screen]?.[stage.dataset.scene] || {})[key] || DEPTH[screen][key]);
+    c.style.display = cfg ? "" : "none";
+    if(!cfg){ [p, c].forEach(e => ["--s", "--r", "--amp", "--dur", "--dx", "--blur", "--op"].forEach(v => e.style.removeProperty(v))); continue; }
+    const [layer, s, r, f = 1] = cfg, L = LAYER[layer];
+    // layout box (unaffected by transforms) and the size the piece shows at; the candle bar fills only part of its square image
+    const box = Math.max(p.offsetWidth, p.offsetHeight) * f, size = box * s;
+    for(const e of [p, c]){
+      e.style.setProperty("--s", s); e.style.setProperty("--r", r + "deg");
+      e.style.setProperty("--amp", (L.amp * box).toFixed(1) + "px"); e.style.setProperty("--dur", L.dur + "s");
+    }
+    c.style.setProperty("--dx", (L.k * size).toFixed(1) + "px");
+    c.style.setProperty("--blur", (L.blur * size).toFixed(1) + "px");
+    c.style.setProperty("--op", L.op);
+  }
+}
+// sparkle dust: a few tiny glints spread over the stage (own seed, so still frames match and the winner picks are untouched)
+const dustRand = (() => { let x = 11; return () => (x = (x * 9301 + 49297) % 233280) / 233280; })();
+$(".dust").innerHTML = Array.from({ length: 26 }, () =>
+  `<i style="left:${(700 + dustRand() * 3320).toFixed(0)}px;top:${(dustRand() * 1000).toFixed(0)}px;--d:${(2 + dustRand() * 3).toFixed(1)}px;--t:${(2.5 + dustRand() * 3).toFixed(1)}s;--dl:-${(dustRand() * 5).toFixed(1)}s"></i>`).join("");
+addEventListener("load", applyDepth);   // image heights are known once they load
+window.depthReady = true;
+
 function go(scene){
   stage.dataset.scene = scene;
+  if(window.depthReady) applyDepth();
   document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.dataset.scene === scene));
   if(scene !== "reveal"){ parts = []; emitUntil = 0; }
   const chip = scene === "redraw" ? "drawing" : scene;
@@ -648,16 +742,16 @@ function apply(st, instant){
 // ---- confetti in the brand rim palette ----
 const cv = $("#confetti"), cx = cv.getContext("2d");
 const COLORS = ["#00d4fe","#1f87e6","#113cf3","#722df4","#e63bd8","#f79319","#ffffff","#cfd8ea"];
-// A brief gimmick, not a show: about 45 small pieces over ~1.2s, falling from the top edge through
+// A brief gimmick, not a show: about 125 small pieces over ~1.8s, falling from the top edge through
 // the centre, drawn behind the text so the winner name stays readable. Each piece fades out
-// between FADE_FROM and FADE_TO and is gone ~3.5s after the reveal.
+// between FADE_FROM and FADE_TO and is gone ~4s after the reveal.
 const FADE_FROM = 620, FADE_TO = 940;
-const RATE = 38;                                      // pieces per second while emitting
+const RATE = 70;                                      // pieces per second while emitting
 const BANDS = [[380, 1540]];                          // x range (1920 stage): the centre, falling from the top edge, drawn behind the text
 let parts = [], raf = 0, emitUntil = 0, lastT = 0, acc = 0;
 function confetti(){
   if(reduce) return;
-  emitUntil = performance.now() + 1200; lastT = performance.now(); acc = 0;
+  emitUntil = performance.now() + 1800; lastT = performance.now(); acc = 0;
   if(!raf) raf = requestAnimationFrame(tick);
 }
 function spawn(){
