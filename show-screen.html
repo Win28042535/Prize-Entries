@@ -47,25 +47,33 @@
   .seam.l{left:-329px;background:linear-gradient(90deg,#C8C9CE,rgba(200,201,206,0))}
   .seam.r{left:2015px;background:linear-gradient(270deg,#C8C9CE,rgba(200,201,206,0))}
   .wing-el{position:absolute;filter:drop-shadow(0 22px 26px rgba(63,111,224,.2));animation:bob 7s ease-in-out infinite}
-  /* Main Stage pieces in three depth layers, from the wings in to the sky around the content:
-       far   (wings, small)            gold bars b, compass c
-       mid   (straddling the wall edge) candle, chest, ship
-       near  (in the sky, clear of text) diamond n1, coin n2, gift, efin */
-  .wing-el.b{left:-640px;bottom:240px;width:130px;animation-delay:-4.5s}
-  .wing-el.c{left:2440px;top:140px;width:110px;animation-delay:-1s}
-  .wing-el.n1{left:340px;top:120px;width:120px;animation-delay:-3s}
-  .wing-el.n2{left:1940px;top:360px;width:110px;animation-delay:-5.5s}   /* between the name's right edge (~1560) and the ship (~2274), a little nearer the ship */
+  /* Main Stage pieces on an 8-step size ladder (shown size, set by DEPTH in the script), placed so big and small pieces
+     sit side by side rather than in an even staircase:
+       hero 300 candle (left, low) · large 220 gift (right, high) · mid 170 chest, 140 diamond n1 ·
+       small 110 coin n2, 90 efin · far 70 gold bars b, 60 compass c (slightly hazed) */
+  .wing-el.b{left:-625px;top:195px;width:130px;animation-delay:-4.5s}
+  .wing-el.c{left:2445px;top:145px;width:110px;animation-delay:-1s}
+  .wing-el.n1{left:40px;top:110px;width:120px;animation-delay:-3s}   /* resting spot, out on the left; slides in with the chest */
+  .wing-el.n2{left:2175px;top:325px;width:110px;animation-delay:-5.5s}   /* above the ship, right of the gift */
+  body.screen-main #stage.depth .wing-el:is(.b,.c){opacity:.85}   /* the two furthest pieces read a little hazier */
   /* the logo row follows the edges of the whole 4:1 screen (same 96px margin as Mini Stage), not the 1920 core */
   body.screen-main .top{left:-604px;right:-604px}
   body.screen-main .wall.l{left:-325px}
   body.screen-main .wall.r{left:1559px}
-  body.screen-main .el.candle{left:-200px;top:200px}   /* bar centred between the far gold bars (~-510) and the name's left edge (~360) */
-  body.screen-main .el.chest{left:77px;bottom:70px}   /* centred between the bar chart (~-75) and the near diamond (~400) */
+  body.screen-main .el.candle{left:-185px;top:395px}   /* the hero piece, low on the left wall */
+  body.screen-main .el.chest{left:65px;bottom:auto;top:555px}   /* beside the candle, a size smaller */
   body.screen-main .el.gift{right:auto;left:1560px;top:150px;width:170px}   /* below the corner label, which is larger on Main Stage */
   body.screen-main .ship{right:-660px;height:300px}   /* right zone, clear of the board */
-  body.screen-main .el.efin{right:auto;bottom:auto;left:1680px;top:640px;width:120px}
+  body.screen-main .el.efin{right:auto;bottom:auto;left:1840px;top:633px;width:120px}   /* small, low, well away from the ship */
   /* the 4-column board fills the sky, so the mid and near pieces step aside there (far pieces and the ship stay) */
-  .el,.wing-el{transition:opacity .6s,scale .8s ease,rotate .8s ease}   /* size and tilt ease in and out of the depth treatment */
+  .el,.wing-el{transition:opacity .6s,scale .8s ease,rotate .8s ease,margin-left .8s ease}   /* size, tilt and the right group's slide ease between scenes */
+  /* Main Stage right group (gift, coin, efin) slides left by --gx towards the content, as far as each scene's text allows
+     (placeGroup in the script); its shadows slide with it */
+  body.screen-main #core > :is(.el.gift,.wing-el.n2,.el.efin){margin-left:calc(-1 * var(--gx,0px))}
+  body.screen-main .shadows :is(.el.gift,.wing-el.n2,.el.efin).cast{margin-left:calc(1400px - var(--gx,0px))}
+  /* and the left group (diamond, chest) mirrors it: rests out on the left, slides right by --gxl */
+  body.screen-main #core > :is(.wing-el.n1,.el.chest){margin-left:var(--gxl,0px)}
+  body.screen-main .shadows :is(.wing-el.n1,.el.chest).cast{margin-left:calc(1400px + var(--gxl,0px))}
   body.screen-main #stage[data-scene="board"] :is(.el.candle,.el.chest,.el.gift,.el.efin,.wing-el.n1,.wing-el.n2){opacity:0}
   /* ---- KV backdrop: sky seen between two white walls (key visual), layered so each part can move ---- */
   .sky{position:absolute;top:0;left:-6%;width:112%;height:100%;background:url("prize-assets/img/kv-sky.webp") center/cover no-repeat;
@@ -306,7 +314,7 @@
   /* Mini Stage: the efin symbol sits low beside the ship, with room to breathe */
   body.screen-mini #stage.depth .el.efin{right:430px;bottom:77px}   /* ~110px clear of the ship's hull */
   /* Main Stage: the gift sits a little lower and right so it clears the corner label and long winner names once it is larger */
-  body.screen-main #stage.depth .el.gift{top:140px;left:1730px}   /* right of where a very long winner name ends (~1720) */
+  body.screen-main #stage.depth .el.gift{top:215px;left:1795px}   /* the large piece on the right: under the corner label, right of where a very long name ends (~1720) */
   /* Mini Stage: the larger gift steps down, clear of the corner label */
   body.screen-mini #stage.depth .el.gift{top:140px}
   body.screen-mini #stage.depth[data-scene="board"] .el.gift{top:104px}
@@ -480,7 +488,7 @@ function setScreen(x){
   document.querySelectorAll("#demoBar [data-screen]").forEach(b => b.setAttribute("aria-pressed", b.dataset.screen === screen));
   fit();
   stage.dataset.sized = "1";
-  if(window.depthReady) applyDepth();
+  if(window.depthReady){ applyDepth(); placeGroup(); }
   if(!first && typeof lastBoard !== "undefined" && lastBoard && stage.dataset.scene === "board") showBoard(lastBoard);
 }
 addEventListener("resize", fit);
@@ -558,15 +566,19 @@ const DEPTH_SCENES = new Set(["idle", "prize", "drawing", "redraw", "reveal", "b
 // per screen, per piece (its second class): [layer, scale, tilt in degrees, visible share of the image box (default 1)]
 const DEPTH = {
   mini: { candle: ["near", 1.25, 8, .55], chest: ["mid", 1.3, -6], gift: ["mid", 1.08, 7], efin: ["far", .8, -14] },
-  main: { candle: ["mid", 1.15, 6, .55], chest: ["mid", 1.3, -6], gift: ["near", 1, 8], efin: ["near", 1.6, -10], n1: ["near", 1.45, -8],
-          n2: ["near", 1.6, 10], b: ["far", .85, -12], c: ["far", .85, 0] },
+  // Main Stage ladder, shown size: candle 300, gift 220, chest 170, diamond 140, coin 110, efin 90, gold bars 70, compass 60
+  main: { candle: ["hero", 1.33, 20, .55], gift: ["large", 1.54, -14], chest: ["mid", 1.19, 10], n1: ["mid", 1.39, -12],
+          n2: ["small", 1.19, 10], efin: ["small", .89, -8], b: ["far", .64, -4], c: ["far", .65, 3] },
 };
 // per screen and scene: entries that replace the ones above (Mini board: the gift and candle stay smaller, clear of the cards and the corner label)
 const DEPTH_SCENE = { mini: { board: { gift: ["mid", .95, 4], candle: ["near", 1.05, 8, .55] } } };
 // k: shadow offset as a share of the piece's size (further from the wall = longer, softer, lighter); amp: bob as a share of its size
 const LAYER = {
+  hero:  { k: .62, blur: .22, op: .08, amp: .13, dur: 7 },
+  large: { k: .55, blur: .20, op: .09, amp: .12, dur: 6.5 },
   near: { k: .55, blur: .20, op: .09, amp: .12, dur: 6 },
   mid:  { k: .40, blur: .15, op: .12, amp: .10, dur: 6 },
+  small: { k: .32, blur: .12, op: .13, amp: .09, dur: 5 },
   far:  { k: .26, blur: .10, op: .15, amp: .08, dur: 4.2 },
 };
 const castLayer = $(".shadows");
@@ -599,12 +611,83 @@ const dustRand = (() => { let x = 11; return () => (x = (x * 9301 + 49297) % 233
 $(".dust").innerHTML = Array.from({ length: 26 }, () =>
   `<i style="left:${(700 + dustRand() * 3320).toFixed(0)}px;top:${(dustRand() * 1000).toFixed(0)}px;--d:${(2 + dustRand() * 3).toFixed(1)}px;--t:${(2.5 + dustRand() * 3).toFixed(1)}s;--dl:-${(dustRand() * 5).toFixed(1)}s"></i>`).join("");
 addEventListener("load", applyDepth);   // image heights are known once they load
+
+// Main Stage: two groups slide towards the content as far as each scene's text allows, so narrow scenes get them close
+// and wide titles or long names push them back out. Each group moves as one, keeping its arrangement:
+//   right group (gift, coin, efin) slides left, left group (diamond, chest) slides right,
+//   both by up to GROUP_MAX and never closer than GROUP_PAD to text or cards sharing a piece's height band.
+// The left group may also slide out (negative) for very wide titles, but the chest keeps CANDLE_GAP from the candle.
+const GROUP_MAX = 300, GROUP_PAD = 110, CANDLE_GAP = 30;   // 110 measured on the layout box: the tilted pieces end up >= 100 clear
+const rightEls = ["#core > .el.gift", "#core > .wing-el.n2", "#core > .el.efin"].map(q => $(q));
+const leftEls = ["#core > .wing-el.n1", "#core > .el.chest"].map(q => $(q));
+function sceneBoxes(scene){
+  const boxes = [];
+  const walk = n => { for(const c of n.childNodes){
+    if(c.nodeType === 3 && c.textContent.trim()){ const r = document.createRange(); r.selectNodeContents(c); boxes.push(...r.getClientRects()); }
+    else if(c.nodeType === 1 && getComputedStyle(c).display !== "none"){
+      if(c.tagName === "IMG" || c.matches(".tile,.group,.reel-band,.rule > div,.deck")){ const r = c.getBoundingClientRect(); if(r.width) boxes.push(r); }
+      if(c.tagName !== "IMG") walk(c);
+    } } };
+  walk(scene);
+  return boxes;
+}
+// Everything is measured in #core's own coordinates and from layout, not from getBoundingClientRect: the pieces are mid-slide
+// (margin, scale, tilt, bob) and the scene is mid-fade (translate + scale) when a scene changes, and measuring those would
+// give a different answer every time. Pieces use their layout box with the slide taken out; text boxes have the scene's
+// current transform undone, so both are measured as if everything had settled.
+function layoutBox(e){
+  const cs = getComputedStyle(e), sc = parseFloat(e.style.getPropertyValue("--s")) || 1;
+  const left = e.offsetLeft - (parseFloat(cs.marginLeft) || 0);                 // where it rests, without the slide
+  const cx = left + e.offsetWidth / 2, cy = e.offsetTop + e.offsetHeight / 2;
+  const w = e.offsetWidth * sc * .84, h = e.offsetHeight * sc * .84;          // the visible part of the image
+  return { l: cx - w / 2, r: cx + w / 2, t: cy - h / 2, b: cy + h / 2 };
+}
+function settledSceneBoxes(scene, core, k){
+  const cr = core.getBoundingClientRect();
+  const m = getComputedStyle(scene).transform, inv = (m === "none" ? new DOMMatrix() : new DOMMatrix(m)).inverse();
+  const ox = scene.offsetWidth / 2, oy = scene.offsetHeight / 2;
+  const pt = (x, y) => { const q = inv.transformPoint(new DOMPoint((x - cr.left) / k - ox, (y - cr.top) / k - oy)); return { x: q.x + ox, y: q.y + oy }; };
+  return sceneBoxes(scene).map(r => { const a = pt(r.left, r.top), b = pt(r.right, r.bottom); return { l: a.x, r: b.x, t: a.y, b: b.y }; });
+}
+function placeGroup(){
+  const core = $("#core");
+  const reset = () => { core.style.setProperty("--gx", "0px"); core.style.setProperty("--gxl", "0px"); };
+  if(screen !== "main" || stage.dataset.scene === "board"){ reset(); return; }
+  const scene = $(".scene.on");
+  if(!scene) return;
+  const k = stage.getBoundingClientRect().width / stage.offsetWidth;          // client px per design px
+  const boxes = settledSceneBoxes(scene, core, k);
+  const inBand = (b, p) => b.b > p.t - GROUP_PAD && b.t < p.b + GROUP_PAD;
+  // right group: the nearest text edge to its left limits how far it slides left
+  let right = GROUP_MAX;
+  for(const e of rightEls){
+    const p = layoutBox(e);
+    const edge = Math.max(-Infinity, ...boxes.filter(b => inBand(b, p) && b.l < p.l).map(b => b.r));
+    if(edge > -Infinity) right = Math.min(right, p.l - edge - GROUP_PAD);
+  }
+  core.style.setProperty("--gx", Math.max(0, Math.floor(right / 10) * 10) + "px");
+  // left group: the nearest text edge to its right limits how far it slides right
+  let left = GROUP_MAX;
+  for(const e of leftEls){
+    const p = layoutBox(e);
+    const edge = Math.min(Infinity, ...boxes.filter(b => inBand(b, p) && b.r > p.r).map(b => b.l));
+    if(edge < Infinity) left = Math.min(left, edge - p.r - GROUP_PAD);
+  }
+  // the chest keeps CANDLE_GAP from the candle bar, which is a narrow strip of its square image
+  const candle = $("#core > .el.candle"), cSc = parseFloat(candle.style.getPropertyValue("--s")) || 1;
+  const candleR = candle.offsetLeft + candle.offsetWidth / 2 + candle.offsetWidth * cSc * .22 / 2;
+  const floor = candleR - layoutBox($("#core > .el.chest")).l + CANDLE_GAP;
+  core.style.setProperty("--gxl", Math.max(Math.ceil(floor / 10) * 10, Math.floor(left / 10) * 10) + "px");
+}
+document.fonts?.ready.then(placeGroup);
 window.depthReady = true;
 
 function go(scene){
   stage.dataset.scene = scene;
   if(window.depthReady) applyDepth();
   document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.dataset.scene === scene));
+  // after the scene's text is in place (and long names are fitted), bring the right group in
+  requestAnimationFrame(() => requestAnimationFrame(placeGroup));
   if(scene !== "reveal"){ parts = []; emitUntil = 0; }
   const chip = scene === "redraw" ? "drawing" : scene;
   document.querySelectorAll("#demoBar [data-demo]").forEach(b => b.setAttribute("aria-pressed", b.dataset.demo === chip));
