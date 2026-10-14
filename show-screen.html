@@ -41,8 +41,10 @@
   .wing.l{right:calc(100% + 323px);background:linear-gradient(270deg,#C8C9CE 0%,#DADCE1 25%,#E9EBF1 65%,#E3E6ED 100%)}
   .wing.r{left:2273px;background:linear-gradient(90deg,#C8C9CE 0%,#DADCE1 25%,#E9EBF1 65%,#E3E6ED 100%)}
   /* feather the walls' grey outer edge into the wing colour so there is no seam */
-  .seam{position:absolute;top:0;bottom:0;width:260px;pointer-events:none}
-  .seam.l{left:-325px;background:linear-gradient(90deg,#C8C9CE,rgba(200,201,206,0))}
+  /* 4px wider than the wall edge it covers: at Main Stage's 1.23 scale the edge lands on a fractional pixel, and a seam ending
+     exactly on the wall edge let the wall's darker rim show through as a 1px vertical line */
+  .seam{position:absolute;top:0;bottom:0;width:264px;pointer-events:none}
+  .seam.l{left:-329px;background:linear-gradient(90deg,#C8C9CE,rgba(200,201,206,0))}
   .seam.r{left:2015px;background:linear-gradient(270deg,#C8C9CE,rgba(200,201,206,0))}
   .wing-el{position:absolute;filter:drop-shadow(0 22px 26px rgba(63,111,224,.2));animation:bob 7s ease-in-out infinite}
   /* Main Stage pieces in three depth layers, from the wings in to the sky around the content:
