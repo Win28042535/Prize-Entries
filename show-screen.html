@@ -303,12 +303,8 @@
   @keyframes castbob{50%{transform:translateY(calc(-.4 * var(--amp,18px)))}}
   #stage.depth :is(#core > .el,#core > .wing-el){filter:none;scale:var(--s,1);rotate:var(--r,0deg);animation-name:bobz;animation-duration:var(--dur,6s)}
   @keyframes bobz{50%{transform:translateY(calc(-1 * var(--amp,18px))) rotate(-2deg)}}
-  /* the small heart only appears with the depth treatment, sitting on the ship's open book */
-  .el.s1{opacity:0;width:76px;right:252px;bottom:214px;animation-delay:-2.5s}
-  body.screen-main .el.s1{right:auto;bottom:auto;left:2250px;top:500px;width:80px}
-  #stage.depth .el.s1{opacity:1}
-  /* Mini Stage: the efin symbol tucks against the ship's hull, like the pieces round the ship in the key visual */
-  body.screen-mini #stage.depth .el.efin{right:280px;bottom:77px}
+  /* Mini Stage: the efin symbol sits low beside the ship, with room to breathe */
+  body.screen-mini #stage.depth .el.efin{right:430px;bottom:77px}   /* ~110px clear of the ship's hull */
   /* Main Stage: the gift sits a little lower and right so it clears the corner label and long winner names once it is larger */
   body.screen-main #stage.depth .el.gift{top:140px;left:1730px}   /* right of where a very long winner name ends (~1720) */
   /* Mini Stage: the larger gift steps down, clear of the corner label */
@@ -349,7 +345,6 @@
   <img class="el candle" src="prize-assets/img/candle.png" alt="">
   <img class="el chest" src="prize-assets/img/chest.webp" alt="">
   <img class="el gift" src="prize-assets/img/gift.webp" alt="">
-  <img class="el s1" src="prize-assets/img/heart.webp" alt="">
   <img class="wing-el n1" src="prize-assets/img/diamond-icon.webp" alt="">
   <img class="wing-el n2" src="prize-assets/img/coin.webp" alt="">
 
@@ -562,9 +557,9 @@ function startReel(st, dur){
 const DEPTH_SCENES = new Set(["idle", "prize", "drawing", "redraw", "reveal", "board"]);   // every scene now
 // per screen, per piece (its second class): [layer, scale, tilt in degrees, visible share of the image box (default 1)]
 const DEPTH = {
-  mini: { candle: ["near", 1.25, 8, .55], chest: ["mid", 1.3, -6], gift: ["mid", 1.08, 7], efin: ["far", .8, -14], s1: ["far", 1, 14] },
+  mini: { candle: ["near", 1.25, 8, .55], chest: ["mid", 1.3, -6], gift: ["mid", 1.08, 7], efin: ["far", .8, -14] },
   main: { candle: ["mid", 1.15, 6, .55], chest: ["mid", 1.3, -6], gift: ["near", 1, 8], efin: ["near", 1.6, -10], n1: ["near", 1.45, -8],
-          n2: ["near", 1.6, 10], b: ["far", .85, -12], c: ["far", .85, 0], s1: ["far", 1, 14] },
+          n2: ["near", 1.6, 10], b: ["far", .85, -12], c: ["far", .85, 0] },
 };
 // per screen and scene: entries that replace the ones above (Mini board: the gift and candle stay smaller, clear of the cards and the corner label)
 const DEPTH_SCENE = { mini: { board: { gift: ["mid", .95, 4], candle: ["near", 1.05, 8, .55] } } };
